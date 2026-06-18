@@ -4,7 +4,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { EMPLOYEE_STATUS_LABELS, EMPLOYEE_STATUS_VARIANTS } from "@/lib/labels";
-import { getRoleLabel } from "@/lib/auth";
 import type { Employee } from "@/types/employee";
 
 interface EmployeeTableProps {
@@ -23,11 +22,6 @@ const columns: ColumnDef<Employee>[] = [
   {
     accessorKey: "name",
     header: "Nome",
-  },
-  {
-    accessorKey: "role",
-    header: "Função",
-    cell: ({ row }) => getRoleLabel(row.original.role),
   },
   {
     accessorKey: "email",

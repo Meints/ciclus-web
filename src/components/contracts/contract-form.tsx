@@ -1,11 +1,14 @@
 "use client";
 
+import { useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2Icon } from "lucide-react";
+import { addDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { CurrencyInput } from "@/components/shared/currency-input";
 import {
   Form,
   FormControl,
@@ -26,6 +29,16 @@ import { CustomerCombobox } from "@/components/customers/customer-combobox";
 import { contractSchema, type ContractFormValues } from "@/lib/validations/contract";
 import { CONTRACT_FREQUENCY_LABELS, SERVICE_TYPE_LABELS } from "@/lib/labels";
 import { useEmployees } from "@/hooks/use-employees";
+
+function formatDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+const QUICK_OPTIONS = [
+  { label: "6 meses", days: 180 },
+  { label: "1 ano", days: 365 },
+  { label: "2 anos", days: 730 },
+];
 
 interface ContractFormProps {
   defaultValues?: Partial<ContractFormValues>;
@@ -48,13 +61,25 @@ export function ContractForm({
       customerId: "",
       serviceType: "AIR_CONDITIONING",
       frequency: "MONTHLY",
-      startDate: new Date().toISOString().slice(0, 10),
+      startDate: formatDate(new Date()),
+      endDate: "",
       value: 0,
       responsibleEmployeeId: "",
       notes: "",
       ...defaultValues,
     },
   });
+
+  const startDate = form.watch("startDate");
+
+  const applyQuickEndDate = useCallback(
+    (label: string, days: number) => {
+      if (!startDate) return;
+      const end = addDays(new Date(startDate), days);
+      form.setValue("endDate", formatDate(end), { shouldValidate: true });
+    },
+    [form, startDate],
+  );
 
   return (
     <Form {...form}>
@@ -144,12 +169,42 @@ export function ContractForm({
 
             <FormField
               control={form.control}
+              name="endDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Data de término</FormLabel>
+                  <div className="flex flex-col gap-2">
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <div className="flex flex-wrap gap-1">
+                      {QUICK_OPTIONS.map((opt) => (
+                        <Button
+                          key={opt.label}
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={!startDate}
+                          onClick={() => applyQuickEndDate(opt.label, opt.days)}
+                        >
+                          {opt.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="value"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Valor (R$)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" min="0" placeholder="0,00" {...field} />
+                    <CurrencyInput value={field.value} onChange={field.onChange} placeholder="0,00" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -27,6 +27,4 @@ export function getCookieValue(name: string): string | null {
   return match ? decodeURIComponent(match[1] ?? "") : null;
 }
 
-export const CSRF_COOKIE_NAME = "ciclus_csrf";
-export const CSRF_HEADER_NAME = "X-CSRF-Token";
 export const AUTH_COOKIE_NAME = "ciclus_token";

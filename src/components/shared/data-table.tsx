@@ -1,12 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
   type ColumnDef,
+  type SortingState,
 } from "@tanstack/react-table";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, ArrowUpDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -35,6 +38,7 @@ interface DataTableProps<TData, TValue> {
   pagination?: DataTablePagination;
   emptyTitle?: string;
   emptyDescription?: string;
+  sortable?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -45,11 +49,17 @@ export function DataTable<TData, TValue>({
   pagination,
   emptyTitle = "Nenhum registro encontrado",
   emptyDescription = "Ajuste os filtros ou cadastre um novo registro.",
+  sortable = true,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+
   const table = useReactTable({
     data,
     columns,
+    state: { sorting },
+    onSortingChange: sortable ? setSorting : undefined,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: sortable ? getSortedRowModel() : undefined,
   });
 
   if (isLoading) {
@@ -65,18 +75,35 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg border-[0.5px] border-ciclus-gray-100">
+      <div className="rounded-lg border-[0.5px] border-ciclus-gray-100 overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const canSort = sortable && header.column.getCanSort();
+                  return (
+                    <TableHead
+                      key={header.id}
+                      onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                      className={canSort ? "cursor-pointer select-none hover:bg-muted/50" : undefined}
+                    >
+                      <div className="flex items-center gap-1">
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.header, header.getContext())}
+                        {canSort && (
+                          {
+                            asc: <ArrowUpIcon className="h-3 w-3" />,
+                            desc: <ArrowDownIcon className="h-3 w-3" />,
+                          }[header.column.getIsSorted() as string] ?? (
+                            <ArrowUpDownIcon className="h-3 w-3 text-muted-foreground/50" />
+                          )
+                        )}
+                      </div>
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHeader>

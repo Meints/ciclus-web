@@ -6,12 +6,23 @@ export interface DashboardSummary {
   activeContracts: number;
   servicesThisMonth: number;
   contractsExpiringIn30Days: number;
+  delayedServices: number;
+  techniciansBusyToday: number;
+  totalTechnicians: number;
+  totalContractValue: number;
+  monthlyRecurringRevenue: number;
+  servicesCompletedThisMonth: number;
+  servicesScheduledToday: number;
+  confirmationRate: number;
+  averageCompletionHours: number;
 }
 
 export interface UpcomingService {
   id: string;
   customerName: string;
+  customerAddress: string;
   employeeName: string | null;
+  employeeId: string | null;
   scheduledDate: string;
   serviceType: string;
   status: ServiceStatus;
@@ -20,7 +31,34 @@ export interface UpcomingService {
 export interface ExpiringContract {
   id: string;
   customerName: string;
+  customerId: string;
   serviceType: ServiceType;
   expiresAt: string;
   daysRemaining: number;
+  value: number;
+}
+
+export interface TechnicianStatus {
+  id: string;
+  name: string;
+  servicesToday: number;
+  completedToday: number;
+  currentServiceId: string | null;
+  currentServiceCustomer: string | null;
+  status: "FREE" | "BUSY" | "OFFLINE";
+}
+
+export interface MonthlyRevenue {
+  month: string;
+  value: number;
+  services: number;
+}
+
+export interface DashboardCalendarService {
+  id: string;
+  customerName: string;
+  serviceType: string;
+  scheduledDate: string;
+  employeeName: string | null;
+  status: ServiceStatus;
 }

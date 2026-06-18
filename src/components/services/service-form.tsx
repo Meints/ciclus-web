@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon, PlayCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -33,17 +33,21 @@ import { useCustomerEquipment } from "@/hooks/use-equipment";
 import { useAuthStore } from "@/store/auth.store";
 
 interface ServiceFormProps {
+  id?: string;
   defaultValues?: Partial<ServiceFormValues>;
   onSubmit: (values: ServiceFormValues) => void;
   isSubmitting?: boolean;
   submitLabel?: string;
+  onSubmitAndStart?: (values: ServiceFormValues) => void;
 }
 
 export function ServiceForm({
+  id,
   defaultValues,
   onSubmit,
   isSubmitting = false,
   submitLabel = "Criar OS",
+  onSubmitAndStart,
 }: ServiceFormProps) {
   const niche = useAuthStore((state) => state.user?.niche) ?? "GENERAL";
   const serviceTypeOptions = getServiceTypes(niche);
@@ -71,7 +75,7 @@ export function ServiceForm({
     status: "ACTIVE",
   });
   const { data: employees } = useEmployees({ page: 1, pageSize: 100 });
-  const technicians = employees?.data.filter((employee) => employee.role === "TECHNICIAN") ?? [];
+  const technicians = employees?.data ?? [];
   const { data: customerEquipment } = useCustomerEquipment(customerId || undefined);
   const activeEquipment = (customerEquipment ?? []).filter((item) => item.status === "ACTIVE");
 
@@ -91,7 +95,7 @@ export function ServiceForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+      <form id={id} onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Dados da ordem de serviço</CardTitle>
@@ -250,6 +254,17 @@ export function ServiceForm({
         </Card>
 
         <div className="flex justify-end gap-2">
+          {onSubmitAndStart && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isSubmitting}
+              onClick={form.handleSubmit(onSubmitAndStart)}
+            >
+              <PlayCircleIcon className="h-4 w-4" />
+              Criar e iniciar
+            </Button>
+          )}
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2Icon className="animate-spin" />}
             {submitLabel}

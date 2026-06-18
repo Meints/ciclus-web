@@ -1,6 +1,6 @@
 "use client";
 
-import { BellIcon, LogOutIcon, MenuIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { BellIcon, LogOutIcon, MenuIcon, MoonIcon, SearchIcon, SettingsIcon, SunIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore } from "@/store/auth.store";
+import { useThemeStore } from "@/store/theme.store";
 import { useUiStore } from "@/store/ui.store";
 import { useLogout } from "@/hooks/use-auth";
 import { useDashboardSummary } from "@/hooks/use-dashboard";
@@ -30,12 +31,16 @@ const PAGE_TITLES: { prefix: string; title: string }[] = [
 
 function getPageTitle(pathname: string): string {
   const match = PAGE_TITLES.find((entry) =>
-    entry.prefix === "/" ? pathname === "/" : pathname.startsWith(entry.prefix)
+    entry.prefix === "/" ? pathname === "/" : pathname.startsWith(entry.prefix),
   );
   return match?.title ?? "";
 }
 
-export function Header() {
+interface HeaderProps {
+  onQuickAction?: () => void;
+}
+
+export function Header({ onQuickAction }: HeaderProps) {
   const pathname = usePathname();
   const user = useAuthStore((state) => state.user);
   const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
@@ -43,9 +48,10 @@ export function Header() {
   const { data: summary } = useDashboardSummary();
 
   const notificationCount = summary?.contractsExpiringIn30Days ?? 0;
+  const { theme, toggleTheme } = useThemeStore();
 
   return (
-    <header className="flex h-[52px] items-center justify-between border-b-[0.5px] border-ciclus-gray-100 bg-white px-4 sm:px-6">
+    <header className="flex h-[52px] items-center justify-between border-b-[0.5px] border-ciclus-gray-100 bg-white px-4 sm:px-6 dark:border-border dark:bg-background">
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
@@ -55,19 +61,48 @@ export function Header() {
         >
           <MenuIcon />
         </Button>
-        <span className="text-[16px] font-medium text-ciclus-gray-900">
+        <span className="text-[16px] font-medium text-ciclus-gray-900 dark:text-foreground">
           {getPageTitle(pathname)}
         </span>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <button
           type="button"
-          className="relative flex h-8 w-8 items-center justify-center rounded-md text-ciclus-gray-600 transition-colors hover:bg-ciclus-gray-50"
+          onClick={onQuickAction}
+          className="hidden sm:flex items-center gap-2 rounded-md border border-ciclus-gray-100 px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/50 transition-colors"
         >
+          <SearchIcon className="h-3.5 w-3.5" />
+          Ações rápidas...
+          <kbd className="rounded border bg-muted px-1 py-0.5 text-[10px] font-medium">
+            ⌘K
+          </kbd>
+        </button>
+
+        <button
+          type="button"
+            className="sm:hidden flex h-8 w-8 items-center justify-center rounded-md text-ciclus-gray-600 transition-colors hover:bg-ciclus-gray-50 dark:text-muted-foreground dark:hover:bg-accent"
+            onClick={onQuickAction}
+        >
+          <SearchIcon className="h-4 w-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="flex h-8 w-8 items-center justify-center rounded-md text-ciclus-gray-600 transition-colors hover:bg-ciclus-gray-50 dark:text-muted-foreground dark:hover:bg-accent"
+          title={theme === "dark" ? "Modo claro" : "Modo escuro"}
+        >
+          {theme === "dark" ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
+        </button>
+
+        <button
+          type="button"
+          className="relative flex h-8 w-8 items-center justify-center rounded-md text-ciclus-gray-600 transition-colors hover:bg-ciclus-gray-50 dark:text-muted-foreground dark:hover:bg-accent"
+          >
           <BellIcon className="h-4 w-4" />
           {notificationCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ciclus-red-600 px-1 text-[10px] font-medium text-white">
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger-500 px-1 text-[10px] font-medium text-white">
               {notificationCount}
             </span>
           )}
@@ -75,13 +110,13 @@ export function Header() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button type="button" className="flex items-center gap-2 rounded-md px-1 py-1 hover:bg-ciclus-gray-50">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ciclus-blue-50 text-xs font-medium text-ciclus-blue-600">
+            <button type="button" className="flex items-center gap-2 rounded-md px-1 py-1 hover:bg-ciclus-gray-50 dark:hover:bg-accent">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50 text-xs font-medium text-brand-600 dark:bg-brand-950">
                 {user ? getInitials(user.name) : "?"}
               </div>
               <div className="hidden flex-col items-start sm:flex">
-                <span className="text-[13px] font-medium text-ciclus-gray-900">{user?.name}</span>
-                <span className="text-[11px] text-ciclus-gray-400">{user?.companyName}</span>
+                <span className="text-[13px] font-medium text-ciclus-gray-900 dark:text-foreground">{user?.name}</span>
+                <span className="text-[11px] text-ciclus-gray-400 dark:text-muted-foreground">{user?.companyName}</span>
               </div>
             </button>
           </DropdownMenuTrigger>

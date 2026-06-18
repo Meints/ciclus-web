@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -94,6 +94,7 @@ export function useChangePassword() {
 export function useRequireAuth(allowedRoles?: UserRole[]) {
   const router = useRouter();
   const pathname = usePathname();
+  const redirected = useRef(false);
   const { isLoading } = useCurrentUser();
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
@@ -103,22 +104,25 @@ export function useRequireAuth(allowedRoles?: UserRole[]) {
   );
 
   useEffect(() => {
-    if (!isInitialized || isLoading) return;
+    if (!isInitialized || isLoading || redirected.current) return;
 
     if (!user) {
+      redirected.current = true;
       router.replace("/login");
       return;
     }
 
     if (allowedRoles && !hasRole(user.role, allowedRoles)) {
+      redirected.current = true;
       router.replace(getDefaultRouteForRole(user.role));
       return;
     }
 
     if (needsOnboarding) {
+      redirected.current = true;
       router.replace("/configuracoes");
     }
-  }, [user, isInitialized, isLoading, allowedRoles, needsOnboarding, router]);
+  });
 
   return {
     user,

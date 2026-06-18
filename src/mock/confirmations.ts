@@ -7,7 +7,6 @@ export interface ConfirmationRecord {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var __ciclusConfirmations: ConfirmationRecord[] | undefined;
 }
 

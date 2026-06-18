@@ -7,7 +7,7 @@ export interface Company {
 
 export const companyService = {
   async updateNiche(niche: ServiceNiche): Promise<Company> {
-    const { data } = await api.patch<Company>("/company", { niche });
+    const { data } = await api.put<Company>("/company", { niche });
     return data;
   },
 };

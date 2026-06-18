@@ -2,6 +2,8 @@ import { api } from "@/lib/api";
 import type {
   DashboardSummary,
   ExpiringContract,
+  MonthlyRevenue,
+  TechnicianStatus,
   UpcomingService,
 } from "@/types/dashboard";
 
@@ -19,9 +21,17 @@ export const dashboardService = {
   },
 
   async getExpiringContracts(): Promise<ExpiringContract[]> {
-    const { data } = await api.get<ExpiringContract[]>(
-      "/dashboard/expiring-contracts"
-    );
+    const { data } = await api.get<ExpiringContract[]>("/dashboard/expiring-contracts");
+    return data;
+  },
+
+  async getTechnicianStatus(): Promise<TechnicianStatus[]> {
+    const { data } = await api.get<TechnicianStatus[]>("/dashboard/technician-status");
+    return data;
+  },
+
+  async getMonthlyRevenue(): Promise<MonthlyRevenue[]> {
+    const { data } = await api.get<MonthlyRevenue[]>("/dashboard/monthly-revenue");
     return data;
   },
 };

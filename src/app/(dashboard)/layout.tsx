@@ -1,13 +1,28 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Loader2Icon } from "lucide-react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { BottomNav } from "@/components/layout/bottom-nav";
+import { QuickActionBar } from "@/components/shared/quick-action-bar";
+import { ConnectivityIndicator } from "@/components/shared/connectivity-indicator";
 import { useRequireAuth } from "@/hooks/use-auth";
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthorized } = useRequireAuth();
+  const [quickActionOpen, setQuickActionOpen] = useState(false);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setQuickActionOpen((prev) => !prev);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   if (isLoading || !isAuthorized) {
     return (
@@ -22,9 +37,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Sidebar className="hidden md:flex" />
       <MobileNav />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-y-auto bg-ciclus-gray-50 p-4 sm:p-6">{children}</main>
+        <Header onQuickAction={() => setQuickActionOpen(true)} />
+        <main className="flex-1 overflow-y-auto bg-background p-4 pb-20 sm:pb-6 sm:p-6">
+          {children}
+        </main>
+        <BottomNav />
       </div>
+      <ConnectivityIndicator />
+      <QuickActionBar open={quickActionOpen} onOpenChange={setQuickActionOpen} />
     </div>
   );
 }

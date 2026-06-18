@@ -13,16 +13,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { employeeSchema, type EmployeeFormValues } from "@/lib/validations/employee";
-import { ROLE_LABELS } from "@/lib/auth";
 
 interface EmployeeFormProps {
   onSubmit: (values: EmployeeFormValues) => void;
@@ -35,8 +27,6 @@ export function EmployeeForm({ onSubmit, isSubmitting = false }: EmployeeFormPro
     defaultValues: {
       name: "",
       email: "",
-      password: "",
-      role: "TECHNICIAN",
       phone: "",
     },
   });
@@ -86,45 +76,6 @@ export function EmployeeForm({ onSubmit, isSubmitting = false }: EmployeeFormPro
                   <FormControl>
                     <Input placeholder="(00) 00000-0000" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha provisória</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Função</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

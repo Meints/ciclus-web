@@ -23,19 +23,35 @@ export const contractService = {
   },
 
   async create(payload: CreateContractPayload): Promise<Contract> {
-    const { data } = await api.post<Contract>("/contracts", payload);
+    const { data } = await api.post<Contract>("/contracts", {
+      customerId: payload.customerId,
+      serviceType: payload.serviceType,
+      frequency: payload.frequency,
+      startDate: payload.startDate,
+      endDate: payload.endDate,
+      amount: payload.value,
+      employeeId: payload.responsibleEmployeeId,
+      notes: payload.notes,
+    });
     return data;
   },
 
   async update(id: string, payload: UpdateContractPayload): Promise<Contract> {
-    const { data } = await api.put<Contract>(`/contracts/${id}`, payload);
+    const body: Record<string, unknown> = {};
+    if (payload.frequency !== undefined) body.frequency = payload.frequency;
+    if (payload.startDate !== undefined) body.startDate = payload.startDate;
+    if (payload.value !== undefined) body.amount = payload.value;
+    if (payload.responsibleEmployeeId !== undefined) body.employeeId = payload.responsibleEmployeeId;
+    if (payload.notes !== undefined) body.notes = payload.notes;
+    if (payload.customerId !== undefined) body.customerId = payload.customerId;
+    if (payload.status !== undefined) body.status = payload.status;
+
+    const { data } = await api.put<Contract>(`/contracts/${id}`, body);
     return data;
   },
 
-  async cancel(id: string): Promise<Contract> {
-    const { data } = await api.put<Contract>(`/contracts/${id}`, {
-      status: "CANCELLED",
-    });
+  async cancel(id: string, reason?: string): Promise<Contract> {
+    const { data } = await api.patch<Contract>(`/contracts/${id}/cancel`, { reason });
     return data;
   },
 

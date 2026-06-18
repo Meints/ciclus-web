@@ -3,8 +3,8 @@ import type { CreateEquipmentPayload, Equipment, UpdateEquipmentPayload } from "
 
 export const equipmentService = {
   async list(customerId: string): Promise<Equipment[]> {
-    const { data } = await api.get<{ data: Equipment[] }>(`/customers/${customerId}/equipment`);
-    return data.data;
+    const { data } = await api.get<Equipment[]>(`/customers/${customerId}/equipment`);
+    return data;
   },
 
   async create(customerId: string, payload: CreateEquipmentPayload): Promise<Equipment> {

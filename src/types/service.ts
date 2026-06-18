@@ -22,6 +22,7 @@ export interface Service {
   customerId: string;
   customerName: string;
   customerAddress: string;
+  customerPhone?: string | null;
   serviceType: string;
   scheduledDate: string;
   employeeId: string | null;
@@ -47,7 +48,7 @@ export interface CreateServicePayload {
   serviceType: string;
   scheduledDate: string;
   employeeId?: string;
-  equipmentIds: string[];
+  equipmentIds?: string[];
 }
 
 export type UpdateServicePayload = Partial<
@@ -58,8 +59,9 @@ export type UpdateServicePayload = Partial<
 
 export interface CompleteServicePayload {
   notes: string;
-  photoUrls: string[];
+  photoUrls?: string[];
   equipmentNotes?: ServiceEquipmentNote[];
+  signatureDataUrl?: string;
 }
 
 export interface ServiceFilters {

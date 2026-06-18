@@ -31,13 +31,15 @@ export const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
 
 export const CONTRACT_FREQUENCY_LABELS: Record<ContractFrequency, string> = {
   MONTHLY: "Mensal",
+  BIMONTHLY: "Bimestral",
   QUARTERLY: "Trimestral",
   SEMIANNUAL: "Semestral",
-  ANNUAL: "Anual",
+  YEARLY: "Anual",
 };
 
 export const CONTRACT_STATUS_LABELS: Record<ContractStatus, string> = {
   ACTIVE: "Ativo",
+  ABOUT_TO_EXPIRE: "Próximo ao vencimento",
   EXPIRED: "Vencido",
   CANCELLED: "Cancelado",
 };
@@ -63,6 +65,7 @@ type BadgeVariant = "default" | "secondary" | "destructive" | "outline" | "succe
 
 export const CONTRACT_STATUS_VARIANTS: Record<ContractStatus, BadgeVariant> = {
   ACTIVE: "success",
+  ABOUT_TO_EXPIRE: "warning",
   EXPIRED: "destructive",
   CANCELLED: "secondary",
 };

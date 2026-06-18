@@ -1,9 +1,6 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
-import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME, getCookieValue } from "./auth";
+import axios, { type AxiosError } from "axios";
 import { useAuthStore } from "@/store/auth.store";
 import type { ApiErrorBody } from "@/types/api";
-
-const UNSAFE_METHODS = new Set(["post", "put", "patch", "delete"]);
 
 export const api = axios.create({
   baseURL: "/api",
@@ -13,21 +10,22 @@ export const api = axios.create({
   },
 });
 
-api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const method = config.method?.toLowerCase();
-  if (method && UNSAFE_METHODS.has(method)) {
-    const csrfToken = getCookieValue(CSRF_COOKIE_NAME);
-    if (csrfToken) {
-      config.headers.set(CSRF_HEADER_NAME, csrfToken);
-    }
-  }
-  return config;
-});
-
-let isRedirectingToLogin = false;
-
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const body = response.data;
+    if (body && typeof body === "object" && "data" in body && body.data !== undefined) {
+      if (body.meta) {
+        // Paginated: { data: [...], meta: {...} } - keep as-is
+      } else if (Array.isArray(body.data)) {
+        // Unpaginated list: { data: [...] } - unwrap
+        response.data = body.data;
+      } else if (body.data !== null) {
+        // Single resource or auth: { data: {...} } - unwrap
+        response.data = body.data;
+      }
+    }
+    return response;
+  },
   (error: AxiosError<ApiErrorBody>) => {
     const status = error.response?.status;
     const isAuthEndpoint = error.config?.url?.includes("/auth/login");
@@ -35,8 +33,8 @@ api.interceptors.response.use(
     if (status === 401 && !isAuthEndpoint) {
       useAuthStore.getState().clear();
 
-      if (typeof window !== "undefined" && !isRedirectingToLogin) {
-        isRedirectingToLogin = true;
+      if (typeof window !== "undefined" && !window.__isRedirectingToLogin) {
+        window.__isRedirectingToLogin = true;
         const redirectTo = encodeURIComponent(window.location.pathname);
         window.location.href = `/login?redirectTo=${redirectTo}`;
       }
@@ -48,3 +46,9 @@ api.interceptors.response.use(
     return Promise.reject(new Error(message));
   }
 );
+
+declare global {
+  interface Window {
+    __isRedirectingToLogin?: boolean;
+  }
+}

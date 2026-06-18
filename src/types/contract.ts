@@ -1,5 +1,5 @@
-export type ContractFrequency = "MONTHLY" | "QUARTERLY" | "SEMIANNUAL" | "ANNUAL";
-export type ContractStatus = "ACTIVE" | "EXPIRED" | "CANCELLED";
+export type ContractFrequency = "MONTHLY" | "BIMONTHLY" | "QUARTERLY" | "SEMIANNUAL" | "YEARLY";
+export type ContractStatus = "ACTIVE" | "ABOUT_TO_EXPIRE" | "EXPIRED" | "CANCELLED";
 export type ServiceType =
   | "AIR_CONDITIONING"
   | "PEST_CONTROL"
@@ -15,6 +15,7 @@ export interface Contract {
   serviceType: ServiceType;
   frequency: ContractFrequency;
   startDate: string;
+  endDate: string;
   nextVisitDate: string | null;
   value: number;
   responsibleEmployeeId: string | null;
@@ -30,12 +31,20 @@ export interface CreateContractPayload {
   serviceType: ServiceType;
   frequency: ContractFrequency;
   startDate: string;
+  endDate: string;
   value: number;
   responsibleEmployeeId?: string;
   notes?: string;
 }
 
-export type UpdateContractPayload = Partial<CreateContractPayload> & {
+export type UpdateContractPayload = {
+  frequency?: ContractFrequency;
+  startDate?: string;
+  endDate?: string;
+  value?: number;
+  responsibleEmployeeId?: string;
+  notes?: string;
+  customerId?: string;
   status?: ContractStatus;
 };
 

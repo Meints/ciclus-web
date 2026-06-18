@@ -10,9 +10,7 @@ export const serviceSchema = z.object({
     .string({ required_error: "Informe a data agendada" })
     .min(1, "Informe a data agendada"),
   employeeId: z.string().optional(),
-  equipmentIds: z
-    .array(z.string())
-    .min(1, "Selecione ao menos um equipamento"),
+  equipmentIds: z.array(z.string()).optional().default([]),
 });
 
 export type ServiceFormValues = z.infer<typeof serviceSchema>;
@@ -21,12 +19,11 @@ export const completeServiceSchema = z.object({
   notes: z
     .string({ required_error: "Descreva as observações do serviço" })
     .min(5, "Descreva as observações do serviço"),
-  photoUrls: z
-    .array(z.string())
-    .min(1, "Adicione ao menos uma foto da execução"),
+  photoUrls: z.array(z.string()).optional().default([]),
   equipmentNotes: z
     .array(z.object({ equipmentId: z.string(), note: z.string() }))
     .optional(),
+  signatureDataUrl: z.string().optional(),
 });
 
 export type CompleteServiceFormValues = z.infer<typeof completeServiceSchema>;

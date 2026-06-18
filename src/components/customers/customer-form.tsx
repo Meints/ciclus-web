@@ -61,6 +61,26 @@ export function CustomerForm({
 
   const documentType = form.watch("documentType");
 
+  async function handleZipCodeBlur() {
+    const zipCode = form.getValues("address.zipCode");
+    const cleaned = onlyDigits(zipCode ?? "");
+    if (cleaned.length !== 8) return;
+
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.erro) return;
+
+      form.setValue("address.street", data.logradouro ?? "", { shouldValidate: true });
+      form.setValue("address.neighborhood", data.bairro ?? "", { shouldValidate: true });
+      form.setValue("address.city", data.localidade ?? "", { shouldValidate: true });
+      form.setValue("address.state", data.uf ?? "", { shouldValidate: true });
+    } catch {
+      // silent fail — CEP lookup is optional convenience
+    }
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
@@ -195,6 +215,7 @@ export function CustomerForm({
                       placeholder="00000-000"
                       value={maskZipCode(field.value ?? "")}
                       onChange={(event) => field.onChange(onlyDigits(event.target.value))}
+                      onBlur={handleZipCodeBlur}
                       inputMode="numeric"
                     />
                   </FormControl>

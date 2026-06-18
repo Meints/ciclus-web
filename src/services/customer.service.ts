@@ -23,16 +23,39 @@ export const customerService = {
   },
 
   async create(payload: CreateCustomerPayload): Promise<Customer> {
-    const { data } = await api.post<Customer>("/customers", payload);
+    const { data } = await api.post<Customer>("/customers", {
+      name: payload.legalName,
+      fantasyName: payload.tradeName,
+      documentType: payload.documentType,
+      document: payload.document,
+      email: payload.email,
+      phone: payload.phone,
+      address: payload.address,
+    });
     return data;
   },
 
   async update(id: string, payload: UpdateCustomerPayload): Promise<Customer> {
-    const { data } = await api.put<Customer>(`/customers/${id}`, payload);
+    const body: Record<string, unknown> = {};
+    if (payload.legalName !== undefined) body.name = payload.legalName;
+    if (payload.tradeName !== undefined) body.fantasyName = payload.tradeName;
+    if (payload.documentType !== undefined) body.documentType = payload.documentType;
+    if (payload.document !== undefined) body.document = payload.document;
+    if (payload.email !== undefined) body.email = payload.email;
+    if (payload.phone !== undefined) body.phone = payload.phone;
+    if (payload.address !== undefined) body.address = payload.address;
+    if (payload.status !== undefined) body.isActive = payload.status === "ACTIVE";
+
+    const { data } = await api.put<Customer>(`/customers/${id}`, body);
     return data;
   },
 
   async remove(id: string): Promise<void> {
     await api.delete(`/customers/${id}`);
+  },
+
+  async reveal(id: string): Promise<{ document: string; email: string | null }> {
+    const { data } = await api.post<{ document: string; email: string | null }>(`/customers/${id}/reveal`);
+    return data;
   },
 };

@@ -6,10 +6,11 @@ export const contractSchema = z.object({
     ["AIR_CONDITIONING", "PEST_CONTROL", "CLEANING", "BUILDING_MAINTENANCE", "OTHER"],
     { required_error: "Selecione o tipo de serviço" }
   ),
-  frequency: z.enum(["MONTHLY", "QUARTERLY", "SEMIANNUAL", "ANNUAL"], {
+  frequency: z.enum(["MONTHLY", "BIMONTHLY", "QUARTERLY", "SEMIANNUAL", "YEARLY"], {
     required_error: "Selecione a periodicidade",
   }),
   startDate: z.string({ required_error: "Informe a data de início" }).min(1, "Informe a data de início"),
+  endDate: z.string({ required_error: "Informe a data de término" }).min(1, "Informe a data de término"),
   value: z.coerce
     .number({ invalid_type_error: "Informe um valor válido" })
     .positive("O valor deve ser maior que zero"),

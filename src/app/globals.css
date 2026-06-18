@@ -6,40 +6,59 @@
 :root {
   --radius: 0.5rem;
 
-  /* Ciclus Blue — primária */
-  --ciclus-blue-50: #e6f1fb;
-  --ciclus-blue-100: #b5d4f4;
-  --ciclus-blue-200: #85b7eb;
-  --ciclus-blue-400: #378add;
-  --ciclus-blue-600: #185fa5;
-  --ciclus-blue-800: #0c447c;
-  --ciclus-blue-900: #042c53;
+  /* Brand — Azul Ciclus (escala completa 50-950) */
+  --brand-50: #e6f1fb;
+  --brand-100: #b5d4f4;
+  --brand-200: #85b7eb;
+  --brand-300: #5a9be0;
+  --brand-400: #378add;
+  --brand-500: #2671c4;
+  --brand-600: #185fa5;
+  --brand-700: #104884;
+  --brand-800: #0c447c;
+  --brand-900: #042c53;
+  --brand-950: #021a33;
 
-  /* Ciclus Teal — apoio/sucesso */
-  --ciclus-teal-50: #e1f5ee;
-  --ciclus-teal-100: #9fe1cb;
-  --ciclus-teal-200: #5dcaa5;
-  --ciclus-teal-400: #1d9e75;
-  --ciclus-teal-600: #0f6e56;
-  --ciclus-teal-800: #085041;
-  --ciclus-teal-900: #04342c;
+  /* Success — Teal */
+  --success-50: #e1f5ee;
+  --success-100: #9fe1cb;
+  --success-200: #5dcaa5;
+  --success-400: #1d9e75;
+  --success-500: #1d9e75;
+  --success-600: #0f6e56;
+  --success-700: #085041;
+  --success-800: #085041;
+  --success-900: #04342c;
 
-  /* Ciclus Amber — atenção */
-  --ciclus-amber-50: #faeeda;
-  --ciclus-amber-600: #854f0b;
+  /* Warning — Amber */
+  --warning-50: #faeeda;
+  --warning-400: #d4901e;
+  --warning-500: #d4901e;
+  --warning-600: #854f0b;
 
-  /* Ciclus Red — perigo */
-  --ciclus-red-50: #fcebeb;
-  --ciclus-red-600: #a32d2d;
+  /* Danger — Red */
+  --danger-50: #fcebeb;
+  --danger-500: #a32d2d;
+  --danger-600: #a32d2d;
 
-  /* Ciclus Gray — neutro */
-  --ciclus-gray-50: #f1efe8;
-  --ciclus-gray-100: #d3d1c7;
-  --ciclus-gray-400: #888780;
-  --ciclus-gray-600: #5f5e5a;
-  --ciclus-gray-800: #444441;
-  --ciclus-gray-900: #2c2c2a;
+  /* Neutral — Gray */
+  --gray-50: #f8f9fa;
+  --gray-100: #f1efe8;
+  --gray-200: #d3d1c7;
+  --gray-300: #b8b6ae;
+  --gray-400: #888780;
+  --gray-500: #6b6a65;
+  --gray-600: #5f5e5a;
+  --gray-700: #4a4a47;
+  --gray-800: #444441;
+  --gray-900: #2c2c2a;
+  --gray-950: #1a1a18;
 
+  /* Info — Blue */
+  --info-50: #e6f1fb;
+  --info-500: #378add;
+
+  /* Shin/Radix tokens */
   --background: 0 0% 100%;
   --foreground: 0 1% 17%;
   --card: 0 0% 100%;
@@ -59,6 +78,28 @@
   --border: 47 13% 84%;
   --input: 39 8% 70%;
   --ring: 209 70% 95%;
+}
+
+.dark {
+  --background: 0 0% 7%;
+  --foreground: 0 0% 95%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 95%;
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 95%;
+  --primary: 209 50% 55%;
+  --primary-foreground: 0 0% 10%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 85%;
+  --muted: 0 0% 14%;
+  --muted-foreground: 0 0% 68%;
+  --accent: 209 30% 20%;
+  --accent-foreground: 209 50% 75%;
+  --destructive: 0 60% 50%;
+  --destructive-foreground: 0 0% 10%;
+  --border: 0 0% 26%;
+  --input: 0 0% 28%;
+  --ring: 209 50% 30%;
 }
 
 @theme inline {
@@ -85,34 +126,77 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  --color-ciclus-blue-50: var(--ciclus-blue-50);
-  --color-ciclus-blue-100: var(--ciclus-blue-100);
-  --color-ciclus-blue-200: var(--ciclus-blue-200);
-  --color-ciclus-blue-400: var(--ciclus-blue-400);
-  --color-ciclus-blue-600: var(--ciclus-blue-600);
-  --color-ciclus-blue-800: var(--ciclus-blue-800);
-  --color-ciclus-blue-900: var(--ciclus-blue-900);
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+  --color-brand-950: var(--brand-950);
 
-  --color-ciclus-teal-50: var(--ciclus-teal-50);
-  --color-ciclus-teal-100: var(--ciclus-teal-100);
-  --color-ciclus-teal-200: var(--ciclus-teal-200);
-  --color-ciclus-teal-400: var(--ciclus-teal-400);
-  --color-ciclus-teal-600: var(--ciclus-teal-600);
-  --color-ciclus-teal-800: var(--ciclus-teal-800);
-  --color-ciclus-teal-900: var(--ciclus-teal-900);
+  --color-success-50: var(--success-50);
+  --color-success-100: var(--success-100);
+  --color-success-200: var(--success-200);
+  --color-success-400: var(--success-400);
+  --color-success-500: var(--success-500);
+  --color-success-600: var(--success-600);
+  --color-success-700: var(--success-700);
+  --color-success-800: var(--success-800);
+  --color-success-900: var(--success-900);
 
-  --color-ciclus-amber-50: var(--ciclus-amber-50);
-  --color-ciclus-amber-600: var(--ciclus-amber-600);
+  --color-warning-50: var(--warning-50);
+  --color-warning-400: var(--warning-400);
+  --color-warning-500: var(--warning-500);
+  --color-warning-600: var(--warning-600);
 
-  --color-ciclus-red-50: var(--ciclus-red-50);
-  --color-ciclus-red-600: var(--ciclus-red-600);
+  --color-danger-50: var(--danger-50);
+  --color-danger-500: var(--danger-500);
+  --color-danger-600: var(--danger-600);
 
-  --color-ciclus-gray-50: var(--ciclus-gray-50);
-  --color-ciclus-gray-100: var(--ciclus-gray-100);
-  --color-ciclus-gray-400: var(--ciclus-gray-400);
-  --color-ciclus-gray-600: var(--ciclus-gray-600);
-  --color-ciclus-gray-800: var(--ciclus-gray-800);
-  --color-ciclus-gray-900: var(--ciclus-gray-900);
+  --color-gray-50: var(--gray-50);
+  --color-gray-100: var(--gray-100);
+  --color-gray-200: var(--gray-200);
+  --color-gray-300: var(--gray-300);
+  --color-gray-400: var(--gray-400);
+  --color-gray-500: var(--gray-500);
+  --color-gray-600: var(--gray-600);
+  --color-gray-700: var(--gray-700);
+  --color-gray-800: var(--gray-800);
+  --color-gray-900: var(--gray-900);
+  --color-gray-950: var(--gray-950);
+
+  --color-info-50: var(--info-50);
+  --color-info-500: var(--info-500);
+
+  /* Legacy aliases (backward compat) */
+  --color-ciclus-blue-50: var(--brand-50);
+  --color-ciclus-blue-100: var(--brand-100);
+  --color-ciclus-blue-200: var(--brand-200);
+  --color-ciclus-blue-400: var(--brand-400);
+  --color-ciclus-blue-600: var(--brand-600);
+  --color-ciclus-blue-800: var(--brand-800);
+  --color-ciclus-blue-900: var(--brand-900);
+  --color-ciclus-teal-50: var(--success-50);
+  --color-ciclus-teal-100: var(--success-100);
+  --color-ciclus-teal-200: var(--success-200);
+  --color-ciclus-teal-400: var(--success-400);
+  --color-ciclus-teal-600: var(--success-600);
+  --color-ciclus-teal-800: var(--success-800);
+  --color-ciclus-teal-900: var(--success-900);
+  --color-ciclus-amber-50: var(--warning-50);
+  --color-ciclus-amber-600: var(--warning-600);
+  --color-ciclus-red-50: var(--danger-50);
+  --color-ciclus-red-600: var(--danger-600);
+  --color-ciclus-gray-50: var(--gray-50);
+  --color-ciclus-gray-100: var(--gray-100);
+  --color-ciclus-gray-400: var(--gray-400);
+  --color-ciclus-gray-600: var(--gray-600);
+  --color-ciclus-gray-800: var(--gray-800);
+  --color-ciclus-gray-900: var(--gray-900);
 }
 
 @layer base {
@@ -121,5 +205,21 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }

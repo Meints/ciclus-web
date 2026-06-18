@@ -10,10 +10,10 @@ export function useDashboardSummary() {
   });
 }
 
-export function useUpcomingServices() {
+export function useUpcomingServices(range?: { start: string; end: string }) {
   return useQuery({
-    queryKey: ["dashboard", "upcoming-services"],
-    queryFn: () => dashboardService.getUpcomingServices(),
+    queryKey: ["dashboard", "upcoming-services", range],
+    queryFn: () => dashboardService.getUpcomingServices(range),
   });
 }
 
@@ -28,5 +28,19 @@ export function useExpiringContracts() {
   return useQuery({
     queryKey: ["dashboard", "expiring-contracts"],
     queryFn: dashboardService.getExpiringContracts,
+  });
+}
+
+export function useTechnicianStatus() {
+  return useQuery({
+    queryKey: ["dashboard", "technician-status"],
+    queryFn: dashboardService.getTechnicianStatus,
+  });
+}
+
+export function useMonthlyRevenue() {
+  return useQuery({
+    queryKey: ["dashboard", "monthly-revenue"],
+    queryFn: dashboardService.getMonthlyRevenue,
   });
 }

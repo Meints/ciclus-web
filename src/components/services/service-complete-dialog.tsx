@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2Icon, TrashIcon, UploadIcon } from "lucide-react";
+import { CameraIcon, Loader2Icon, TrashIcon, UploadIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { SignaturePad } from "@/components/shared/signature-pad";
 import { ConfirmationLinkPanel } from "@/components/services/confirmation-link-panel";
 import { completeServiceSchema, type CompleteServiceFormValues } from "@/lib/validations/service";
 import { useCompleteService, useUploadServicePhoto } from "@/hooks/use-services";
@@ -32,14 +33,47 @@ import type { Equipment } from "@/types/equipment";
 interface ServiceCompleteDialogProps {
   serviceId: string;
   equipment?: Equipment[];
+  customerPhone?: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCompleted?: () => void;
 }
 
+async function compressImage(file: File, maxWidth = 1200, quality = 0.7): Promise<File> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const canvas = document.createElement("canvas");
+      let { width, height } = img;
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { resolve(file); return; }
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { resolve(file); return; }
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), { type: "image/webp" }));
+        },
+        "image/webp",
+        quality,
+      );
+    };
+    img.onerror = () => resolve(file);
+    img.src = url;
+  });
+}
+
 export function ServiceCompleteDialog({
   serviceId,
   equipment = [],
+  customerPhone,
   open,
   onOpenChange,
   onCompleted,
@@ -47,6 +81,9 @@ export function ServiceCompleteDialog({
   const [photos, setPhotos] = useState<{ url: string; name: string }[]>([]);
   const [equipmentNotes, setEquipmentNotes] = useState<Record<string, string>>({});
   const [completedService, setCompletedService] = useState<Service | null>(null);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const completeService = useCompleteService(serviceId);
   const uploadPhoto = useUploadServicePhoto(serviceId);
@@ -62,42 +99,60 @@ export function ServiceCompleteDialog({
       setPhotos([]);
       setEquipmentNotes({});
       setCompletedService(null);
+      setSignatureDataUrl(null);
     }
   }, [open, form]);
 
-  async function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
+  const handlePhotoChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    for (const file of Array.from(files)) {
-      try {
-        const result = await uploadPhoto.mutateAsync(file);
-        setPhotos((prev) => {
-          const next = [...prev, { url: result.url, name: file.name }];
-          form.setValue(
-            "photoUrls",
-            next.map((photo) => photo.url),
-            { shouldValidate: true }
-          );
-          return next;
-        });
-      } catch {
-        // erro já notificado via toast no hook de upload
+    setUploading(true);
+    const fileArray = Array.from(files);
+
+    try {
+      const results = await Promise.allSettled(
+        fileArray.map(async (file) => {
+          const compressed = await compressImage(file);
+          return uploadPhoto.mutateAsync(compressed);
+        }),
+      );
+
+      const newPhotos: { url: string; name: string }[] = [];
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i]!;
+        if (result.status === "fulfilled") {
+          const fileName = fileArray[i]?.name ?? "photo";
+          newPhotos.push({ url: result.value.url, name: fileName });
+        }
       }
+
+      setPhotos((prev) => {
+        const next = [...prev, ...newPhotos];
+        form.setValue("photoUrls", next.map((p) => p.url), { shouldValidate: true });
+        return next;
+      });
+    } finally {
+      setUploading(false);
     }
+
     event.target.value = "";
-  }
+  }, [form, uploadPhoto]);
 
   function handleRemovePhoto(url: string) {
     setPhotos((prev) => {
       const next = prev.filter((photo) => photo.url !== url);
-      form.setValue(
-        "photoUrls",
-        next.map((photo) => photo.url),
-        { shouldValidate: true }
-      );
+      form.setValue("photoUrls", next.map((p) => p.url), { shouldValidate: true });
       return next;
     });
+  }
+
+  function handleCameraCapture() {
+    if (fileInputRef.current) {
+      fileInputRef.current.accept = "image/*";
+      fileInputRef.current.capture = "environment";
+      fileInputRef.current.click();
+    }
   }
 
   function onSubmit(values: CompleteServiceFormValues) {
@@ -106,6 +161,7 @@ export function ServiceCompleteDialog({
       equipmentNotes: Object.entries(equipmentNotes)
         .filter(([, note]) => note.trim().length > 0)
         .map(([equipmentId, note]) => ({ equipmentId, note })),
+      signatureDataUrl: signatureDataUrl ?? undefined,
     };
     completeService.mutate(payload, {
       onSuccess: (data) => {
@@ -121,7 +177,7 @@ export function ServiceCompleteDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         {completedService?.confirmationLink ? (
           <>
             <DialogHeader>
@@ -130,6 +186,7 @@ export function ServiceCompleteDialog({
             <ConfirmationLinkPanel
               confirmationLink={completedService.confirmationLink}
               expiresAt={completedService.confirmationExpiresAt ?? null}
+              customerPhone={customerPhone ?? completedService.customerPhone}
             />
             <DialogFooter>
               <Button type="button" onClick={() => onOpenChange(false)}>
@@ -152,7 +209,12 @@ export function ServiceCompleteDialog({
                     <FormItem>
                       <FormLabel>Observações</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Descreva o que foi executado..." rows={4} {...field} />
+                        <Textarea
+                          placeholder="Descreva o que foi executado..."
+                          rows={4}
+                          className="text-base sm:text-sm"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -167,23 +229,39 @@ export function ServiceCompleteDialog({
                       <FormLabel>Fotos da execução</FormLabel>
                       <FormControl>
                         <div className="flex flex-col gap-2">
-                          <label
-                            className={cn(
-                              "flex h-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-sm text-muted-foreground hover:bg-accent/40",
-                              uploadPhoto.isPending && "pointer-events-none opacity-50"
-                            )}
-                          >
-                            <UploadIcon className="h-4 w-4" />
-                            {uploadPhoto.isPending ? "Enviando..." : "Selecionar fotos"}
-                            <input
-                              type="file"
-                              accept="image/*"
-                              multiple
-                              className="hidden"
-                              onChange={handlePhotoChange}
-                              disabled={uploadPhoto.isPending}
-                            />
-                          </label>
+                          <div className="flex gap-2">
+                            <label
+                              className={cn(
+                                "flex h-20 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-sm text-muted-foreground hover:bg-accent/40 transition-colors",
+                                uploading && "pointer-events-none opacity-50",
+                              )}
+                            >
+                              <UploadIcon className="h-4 w-4" />
+                              {uploading ? "Comprimindo..." : "Galeria"}
+                              <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                onChange={handlePhotoChange}
+                                disabled={uploading}
+                              />
+                            </label>
+
+                            <button
+                              type="button"
+                              onClick={handleCameraCapture}
+                              disabled={uploading}
+                              className={cn(
+                                "flex h-20 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-sm text-muted-foreground hover:bg-accent/40 transition-colors",
+                                uploading && "pointer-events-none opacity-50",
+                              )}
+                            >
+                              <CameraIcon className="h-4 w-4" />
+                              Câmera
+                            </button>
+                          </div>
 
                           {photos.length > 0 && (
                             <div className="grid grid-cols-3 gap-2">
@@ -192,7 +270,6 @@ export function ServiceCompleteDialog({
                                   key={photo.url}
                                   className="group relative aspect-square overflow-hidden rounded-md border"
                                 >
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
                                   <img
                                     src={photo.url}
                                     alt={photo.name}
@@ -201,7 +278,7 @@ export function ServiceCompleteDialog({
                                   <button
                                     type="button"
                                     onClick={() => handleRemovePhoto(photo.url)}
-                                    className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                                    className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 tap-target"
                                   >
                                     <TrashIcon className="h-3 w-3" />
                                   </button>
@@ -227,6 +304,7 @@ export function ServiceCompleteDialog({
                         <Textarea
                           rows={2}
                           placeholder="Observação sobre este equipamento (opcional)"
+                          className="text-base sm:text-sm"
                           value={equipmentNotes[item.id] ?? ""}
                           onChange={(event) =>
                             setEquipmentNotes((prev) => ({
@@ -240,10 +318,22 @@ export function ServiceCompleteDialog({
                   </div>
                 )}
 
-                <DialogFooter>
-                  <Button type="submit" disabled={completeService.isPending}>
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-medium">Assinatura do cliente (opcional)</p>
+                  <SignaturePad
+                    value={signatureDataUrl}
+                    onChange={setSignatureDataUrl}
+                  />
+                </div>
+
+                <DialogFooter className="flex-col gap-2 sm:flex-row">
+                  <Button
+                    type="submit"
+                    disabled={completeService.isPending}
+                    className="h-12 w-full text-base sm:h-10 sm:w-auto"
+                  >
                     {completeService.isPending && <Loader2Icon className="animate-spin" />}
-                    Concluir OS
+                    {completeService.isPending ? "Registrando..." : "Concluir OS"}
                   </Button>
                 </DialogFooter>
               </form>

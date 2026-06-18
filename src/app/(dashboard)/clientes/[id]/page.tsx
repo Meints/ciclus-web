@@ -31,6 +31,7 @@ import {
 import { CONTRACT_STATUS_LABELS, CONTRACT_STATUS_VARIANTS, SERVICE_STATUS_LABELS, SERVICE_STATUS_VARIANTS, SERVICE_TYPE_LABELS } from "@/lib/labels";
 import { getServiceTypeLabel } from "@/lib/service-types";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { customerService } from "@/services/customer.service";
 import type { CustomerFormValues } from "@/lib/validations/customer";
 import type { EquipmentFormValues } from "@/lib/validations/equipment";
 import type { Equipment } from "@/types/equipment";
@@ -41,6 +42,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
   const [isDeactivateOpen, setIsDeactivateOpen] = useState(false);
   const [isEquipmentFormOpen, setIsEquipmentFormOpen] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
+  const [revealedData, setRevealedData] = useState<{ document: string; email: string | null } | null>(null);
 
   const { data: customer, isLoading } = useCustomer(id);
   const updateCustomer = useUpdateCustomer(id);
@@ -60,6 +62,11 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
   const createEquipment = useCreateEquipment(id);
   const updateEquipment = useUpdateEquipment(id, editingEquipment?.id ?? "");
   const toggleEquipment = useToggleEquipment(id);
+
+  function handleOpenEdit() {
+    setIsEditOpen(true);
+    customerService.reveal(id).then(setRevealedData).catch(() => setRevealedData(null));
+  }
 
   function handleOpenNewEquipment() {
     setEditingEquipment(null);
@@ -117,7 +124,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
         description="Detalhes do cliente, contratos e histórico de serviços"
         actions={
           <>
-            <Button variant="outline" onClick={() => setIsEditOpen(true)}>
+            <Button variant="outline" onClick={handleOpenEdit}>
               <PencilIcon />
               Editar
             </Button>
@@ -266,7 +273,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+      <Dialog open={isEditOpen} onOpenChange={(open) => { setIsEditOpen(open); if (!open) setRevealedData(null); }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Editar cliente</DialogTitle>
@@ -276,8 +283,8 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
               legalName: customer.legalName,
               tradeName: customer.tradeName ?? "",
               documentType: customer.documentType,
-              document: customer.document,
-              email: customer.email ?? "",
+              document: revealedData?.document ?? customer.document,
+              email: revealedData?.email ?? customer.email ?? "",
               phone: customer.phone,
               address: {
                 ...customer.address,
