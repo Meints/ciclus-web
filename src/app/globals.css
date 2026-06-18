@@ -1,0 +1,125 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.5rem;
+
+  /* Ciclus Blue — primária */
+  --ciclus-blue-50: #e6f1fb;
+  --ciclus-blue-100: #b5d4f4;
+  --ciclus-blue-200: #85b7eb;
+  --ciclus-blue-400: #378add;
+  --ciclus-blue-600: #185fa5;
+  --ciclus-blue-800: #0c447c;
+  --ciclus-blue-900: #042c53;
+
+  /* Ciclus Teal — apoio/sucesso */
+  --ciclus-teal-50: #e1f5ee;
+  --ciclus-teal-100: #9fe1cb;
+  --ciclus-teal-200: #5dcaa5;
+  --ciclus-teal-400: #1d9e75;
+  --ciclus-teal-600: #0f6e56;
+  --ciclus-teal-800: #085041;
+  --ciclus-teal-900: #04342c;
+
+  /* Ciclus Amber — atenção */
+  --ciclus-amber-50: #faeeda;
+  --ciclus-amber-600: #854f0b;
+
+  /* Ciclus Red — perigo */
+  --ciclus-red-50: #fcebeb;
+  --ciclus-red-600: #a32d2d;
+
+  /* Ciclus Gray — neutro */
+  --ciclus-gray-50: #f1efe8;
+  --ciclus-gray-100: #d3d1c7;
+  --ciclus-gray-400: #888780;
+  --ciclus-gray-600: #5f5e5a;
+  --ciclus-gray-800: #444441;
+  --ciclus-gray-900: #2c2c2a;
+
+  --background: 0 0% 100%;
+  --foreground: 0 1% 17%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 1% 17%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 1% 17%;
+  --primary: 209 70% 35%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 48 22% 95%;
+  --secondary-foreground: 0 1% 27%;
+  --muted: 48 22% 95%;
+  --muted-foreground: 0 1% 37%;
+  --accent: 209 70% 95%;
+  --accent-foreground: 209 70% 35%;
+  --destructive: 0 53% 41%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 47 13% 84%;
+  --input: 39 8% 70%;
+  --ring: 209 70% 95%;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --color-ciclus-blue-50: var(--ciclus-blue-50);
+  --color-ciclus-blue-100: var(--ciclus-blue-100);
+  --color-ciclus-blue-200: var(--ciclus-blue-200);
+  --color-ciclus-blue-400: var(--ciclus-blue-400);
+  --color-ciclus-blue-600: var(--ciclus-blue-600);
+  --color-ciclus-blue-800: var(--ciclus-blue-800);
+  --color-ciclus-blue-900: var(--ciclus-blue-900);
+
+  --color-ciclus-teal-50: var(--ciclus-teal-50);
+  --color-ciclus-teal-100: var(--ciclus-teal-100);
+  --color-ciclus-teal-200: var(--ciclus-teal-200);
+  --color-ciclus-teal-400: var(--ciclus-teal-400);
+  --color-ciclus-teal-600: var(--ciclus-teal-600);
+  --color-ciclus-teal-800: var(--ciclus-teal-800);
+  --color-ciclus-teal-900: var(--ciclus-teal-900);
+
+  --color-ciclus-amber-50: var(--ciclus-amber-50);
+  --color-ciclus-amber-600: var(--ciclus-amber-600);
+
+  --color-ciclus-red-50: var(--ciclus-red-50);
+  --color-ciclus-red-600: var(--ciclus-red-600);
+
+  --color-ciclus-gray-50: var(--ciclus-gray-50);
+  --color-ciclus-gray-100: var(--ciclus-gray-100);
+  --color-ciclus-gray-400: var(--ciclus-gray-400);
+  --color-ciclus-gray-600: var(--ciclus-gray-600);
+  --color-ciclus-gray-800: var(--ciclus-gray-800);
+  --color-ciclus-gray-900: var(--ciclus-gray-900);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
