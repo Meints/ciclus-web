@@ -30,22 +30,22 @@ export function KpiCard({
       : value;
   const variantStyles = {
     default: {
-      bg: "bg-brand-50 dark:bg-brand-950",
+      bg: "bg-brand-50",
       text: "text-brand-600",
       icon: "text-brand-600",
     },
     success: {
-      bg: "bg-success-50 dark:bg-success-900",
+      bg: "bg-success-50",
       text: "text-success-600",
       icon: "text-success-600",
     },
     warning: {
-      bg: "bg-warning-50 dark:bg-warning-600/30",
+      bg: "bg-warning-50",
       text: "text-warning-600",
       icon: "text-warning-600",
     },
     danger: {
-      bg: "bg-danger-50 dark:bg-danger-600/30",
+      bg: "bg-danger-50",
       text: "text-danger-600",
       icon: "text-danger-600",
     },
@@ -57,7 +57,7 @@ export function KpiCard({
     <div
       onClick={onClick}
       className={cn(
-        "rounded-lg border-[0.5px] border-ciclus-gray-100 bg-white p-5 transition-all dark:border-border dark:bg-card",
+        "rounded-lg border-[0.5px] border-ciclus-gray-100 bg-card p-5 transition-all dark:border-border",
         onClick && "cursor-pointer hover:shadow-md hover:border-brand-200 dark:hover:border-brand-600",
       )}
     >

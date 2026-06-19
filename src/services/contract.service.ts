@@ -25,7 +25,6 @@ export const contractService = {
   async create(payload: CreateContractPayload): Promise<Contract> {
     const { data } = await api.post<Contract>("/contracts", {
       customerId: payload.customerId,
-      serviceType: payload.serviceType,
       frequency: payload.frequency,
       startDate: payload.startDate,
       endDate: payload.endDate,
@@ -53,9 +52,5 @@ export const contractService = {
   async cancel(id: string, reason?: string): Promise<Contract> {
     const { data } = await api.patch<Contract>(`/contracts/${id}/cancel`, { reason });
     return data;
-  },
-
-  async remove(id: string): Promise<void> {
-    await api.delete(`/contracts/${id}`);
   },
 };

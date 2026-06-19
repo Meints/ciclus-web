@@ -60,46 +60,115 @@
 
   /* Shin/Radix tokens */
   --background: 0 0% 100%;
-  --foreground: 0 1% 17%;
+  --foreground: 0 1% 13%;
   --card: 0 0% 100%;
-  --card-foreground: 0 1% 17%;
+  --card-foreground: 0 1% 13%;
   --popover: 0 0% 100%;
-  --popover-foreground: 0 1% 17%;
+  --popover-foreground: 0 1% 13%;
   --primary: 209 70% 35%;
   --primary-foreground: 0 0% 100%;
   --secondary: 48 22% 95%;
-  --secondary-foreground: 0 1% 27%;
+  --secondary-foreground: 0 1% 22%;
   --muted: 48 22% 95%;
-  --muted-foreground: 0 1% 37%;
+  --muted-foreground: 0 1% 30%;
   --accent: 209 70% 95%;
   --accent-foreground: 209 70% 35%;
   --destructive: 0 53% 41%;
   --destructive-foreground: 0 0% 100%;
-  --border: 47 13% 84%;
-  --input: 39 8% 70%;
+  --border: 47 13% 76%;
+  --input: 39 8% 60%;
   --ring: 209 70% 95%;
 }
 
 .dark {
-  --background: 0 0% 7%;
-  --foreground: 0 0% 95%;
+  --background: 0 0% 6%;
+  --foreground: 0 0% 97%;
   --card: 0 0% 10%;
-  --card-foreground: 0 0% 95%;
+  --card-foreground: 0 0% 97%;
   --popover: 0 0% 10%;
-  --popover-foreground: 0 0% 95%;
-  --primary: 209 50% 55%;
-  --primary-foreground: 0 0% 10%;
-  --secondary: 0 0% 15%;
-  --secondary-foreground: 0 0% 85%;
+  --popover-foreground: 0 0% 97%;
+  --primary: 209 55% 62%;
+  --primary-foreground: 0 0% 5%;
+  --secondary: 0 0% 16%;
+  --secondary-foreground: 0 0% 92%;
   --muted: 0 0% 14%;
-  --muted-foreground: 0 0% 68%;
-  --accent: 209 30% 20%;
-  --accent-foreground: 209 50% 75%;
-  --destructive: 0 60% 50%;
-  --destructive-foreground: 0 0% 10%;
-  --border: 0 0% 26%;
-  --input: 0 0% 28%;
-  --ring: 209 50% 30%;
+  --muted-foreground: 0 0% 76%;
+  --accent: 209 30% 18%;
+  --accent-foreground: 209 55% 82%;
+  --destructive: 0 62% 52%;
+  --destructive-foreground: 0 0% 5%;
+  --border: 0 0% 32%;
+  --input: 0 0% 36%;
+  --ring: 209 50% 38%;
+
+  /* Gray palette inverted for dark mode */
+  --gray-50: #1a1a1a;
+  --gray-100: #262626;
+  --gray-200: #333333;
+  --gray-300: #4a4a4a;
+  --gray-400: #666666;
+  --gray-500: #888888;
+  --gray-600: #aaaaaa;
+  --gray-700: #c4c4c4;
+  --gray-800: #d4d4d4;
+  --gray-900: #e5e5e5;
+  --gray-950: #f0f0f0;
+
+  /* Brand inverted for dark mode */
+  --brand-50: #021a33;
+  --brand-100: #042c53;
+  --brand-200: #0c447c;
+  --brand-300: #104884;
+  --brand-400: #2671c4;
+  --brand-500: #378add;
+  --brand-600: #5a9be0;
+  --brand-700: #85b7eb;
+  --brand-800: #b5d4f4;
+  --brand-900: #d9e9fa;
+  --brand-950: #e6f1fb;
+
+  /* Success inverted for dark mode */
+  --success-50: #04342c;
+  --success-100: #085041;
+  --success-200: #0f6e56;
+  --success-400: #1d9e75;
+  --success-500: #1d9e75;
+  --success-600: #5dcaa5;
+  --success-700: #9fe1cb;
+  --success-800: #c2ede0;
+  --success-900: #e1f5ee;
+
+  /* Warning inverted for dark mode */
+  --warning-50: #3d2605;
+  --warning-400: #d4901e;
+  --warning-500: #d4901e;
+  --warning-600: #e8b44a;
+
+  /* Danger inverted for dark mode */
+  --danger-50: #2d0e0e;
+  --danger-500: #a32d2d;
+  --danger-600: #d45a5a;
+
+  /* FullCalendar dark mode */
+  --fc-border-color: hsl(0, 0%, 28%);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: hsl(0, 0%, 12%);
+  --fc-neutral-text-color: hsl(0, 0%, 97%);
+  --fc-button-text-color: hsl(0, 0%, 90%);
+  --fc-button-bg-color: hsl(0, 0%, 18%);
+  --fc-button-border-color: hsl(0, 0%, 32%);
+  --fc-button-hover-bg-color: hsl(209, 30%, 22%);
+  --fc-button-hover-border-color: hsl(209, 35%, 35%);
+  --fc-button-active-bg-color: hsl(209, 35%, 25%);
+  --fc-button-active-border-color: hsl(209, 50%, 45%);
+  --fc-event-bg-color: hsl(209, 40%, 35%);
+  --fc-event-border-color: hsl(209, 40%, 35%);
+  --fc-event-text-color: hsl(0, 0%, 97%);
+  --fc-today-bg-color: hsl(209, 30%, 14%);
+  --fc-list-event-hover-bg-color: hsl(0, 0%, 16%);
+  --fc-highlight-color: hsl(209, 30%, 18%);
+  --fc-more-link-bg-color: hsl(0, 0%, 18%);
+  --fc-more-link-text-color: hsl(0, 0%, 76%);
 }
 
 @theme inline {

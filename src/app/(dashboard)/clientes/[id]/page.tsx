@@ -28,7 +28,7 @@ import {
   useToggleEquipment,
   useUpdateEquipment,
 } from "@/hooks/use-equipment";
-import { CONTRACT_STATUS_LABELS, CONTRACT_STATUS_VARIANTS, SERVICE_STATUS_LABELS, SERVICE_STATUS_VARIANTS, SERVICE_TYPE_LABELS } from "@/lib/labels";
+import { CONTRACT_STATUS_LABELS, CONTRACT_STATUS_VARIANTS, SERVICE_STATUS_LABELS, SERVICE_STATUS_VARIANTS } from "@/lib/labels";
 import { getServiceTypeLabel } from "@/lib/service-types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { customerService } from "@/services/customer.service";
@@ -165,9 +165,9 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                   {contracts.data.map((contract) => (
                     <div key={contract.id} className="flex items-center justify-between p-4">
                       <div>
-                        <p className="font-medium">{SERVICE_TYPE_LABELS[contract.serviceType]}</p>
+                        <p className="font-medium">{formatCurrency(contract.value)}</p>
                         <p className="text-sm text-muted-foreground">
-                          {formatCurrency(contract.value)} · próxima visita{" "}
+                          Próxima visita{" "}
                           {contract.nextVisitDate ? formatDate(contract.nextVisitDate) : "—"}
                         </p>
                       </div>

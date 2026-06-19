@@ -15,8 +15,8 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { ContractTable } from "@/components/contracts/contract-table";
 import { useContracts } from "@/hooks/use-contracts";
-import { CONTRACT_STATUS_LABELS, SERVICE_TYPE_LABELS } from "@/lib/labels";
-import type { Contract, ContractStatus, ServiceType } from "@/types/contract";
+import { CONTRACT_STATUS_LABELS } from "@/lib/labels";
+import type { Contract, ContractStatus } from "@/types/contract";
 
 const PAGE_SIZE = 10;
 const ALL = "ALL";
@@ -24,7 +24,6 @@ const ALL = "ALL";
 export default function ContractsPage() {
   const router = useRouter();
   const [status, setStatus] = useState<string>(ALL);
-  const [serviceType, setServiceType] = useState<string>(ALL);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [page, setPage] = useState(1);
@@ -33,7 +32,6 @@ export default function ContractsPage() {
     page,
     pageSize: PAGE_SIZE,
     status: status === ALL ? undefined : (status as ContractStatus),
-    serviceType: serviceType === ALL ? undefined : (serviceType as ServiceType),
     startDate: startDate || undefined,
     endDate: endDate || undefined,
   });
@@ -69,26 +67,6 @@ export default function ContractsPage() {
           <SelectContent>
             <SelectItem value={ALL}>Todos os status</SelectItem>
             {Object.entries(CONTRACT_STATUS_LABELS).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={serviceType}
-          onValueChange={(value) => {
-            setServiceType(value);
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-52">
-            <SelectValue placeholder="Tipo de serviço" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>Todos os tipos</SelectItem>
-            {Object.entries(SERVICE_TYPE_LABELS).map(([value, label]) => (
               <SelectItem key={value} value={value}>
                 {label}
               </SelectItem>

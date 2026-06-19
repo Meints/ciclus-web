@@ -58,10 +58,9 @@ export type UpdateServicePayload = Partial<
 };
 
 export interface CompleteServicePayload {
-  notes: string;
-  photoUrls?: string[];
+  executionNotes: string;
+  durationMinutes?: number;
   equipmentNotes?: ServiceEquipmentNote[];
-  signatureDataUrl?: string;
 }
 
 export interface ServiceFilters {
@@ -70,7 +69,6 @@ export interface ServiceFilters {
   employeeId?: string;
   customerId?: string;
   contractId?: string;
-  date?: string;
-  startDate?: string;
-  endDate?: string;
+  dateStart?: string;
+  dateEnd?: string;
 }

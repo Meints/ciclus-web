@@ -16,14 +16,12 @@ export const serviceSchema = z.object({
 export type ServiceFormValues = z.infer<typeof serviceSchema>;
 
 export const completeServiceSchema = z.object({
-  notes: z
+  executionNotes: z
     .string({ required_error: "Descreva as observações do serviço" })
     .min(5, "Descreva as observações do serviço"),
-  photoUrls: z.array(z.string()).optional().default([]),
   equipmentNotes: z
     .array(z.object({ equipmentId: z.string(), note: z.string() }))
     .optional(),
-  signatureDataUrl: z.string().optional(),
 });
 
 export type CompleteServiceFormValues = z.infer<typeof completeServiceSchema>;

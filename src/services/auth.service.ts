@@ -20,6 +20,6 @@ export const authService = {
     currentPassword: string;
     newPassword: string;
   }): Promise<void> {
-    await api.patch("/auth/password", payload);
+    await api.post("/auth/change-password", payload);
   },
 };

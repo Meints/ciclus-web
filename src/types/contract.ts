@@ -12,7 +12,6 @@ export interface Contract {
   companyId: string;
   customerId: string;
   customerName: string;
-  serviceType: ServiceType;
   frequency: ContractFrequency;
   startDate: string;
   endDate: string;
@@ -28,7 +27,6 @@ export interface Contract {
 
 export interface CreateContractPayload {
   customerId: string;
-  serviceType: ServiceType;
   frequency: ContractFrequency;
   startDate: string;
   endDate: string;
@@ -51,7 +49,6 @@ export type UpdateContractPayload = {
 export interface ContractFilters {
   search?: string;
   status?: ContractStatus;
-  serviceType?: ServiceType;
   startDate?: string;
   endDate?: string;
   customerId?: string;

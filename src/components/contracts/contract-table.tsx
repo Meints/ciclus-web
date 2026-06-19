@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/shared/data-table";
 import { ContractStatusBadge } from "@/components/contracts/contract-status-badge";
-import { CONTRACT_FREQUENCY_LABELS, SERVICE_TYPE_LABELS } from "@/lib/labels";
+import { CONTRACT_FREQUENCY_LABELS } from "@/lib/labels";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { Contract } from "@/types/contract";
 
@@ -24,11 +24,6 @@ const columns: ColumnDef<Contract>[] = [
   {
     accessorKey: "customerName",
     header: "Cliente",
-  },
-  {
-    accessorKey: "serviceType",
-    header: "Tipo",
-    cell: ({ row }) => SERVICE_TYPE_LABELS[row.original.serviceType],
   },
   {
     accessorKey: "frequency",

@@ -36,11 +36,11 @@ export function ConfirmationLinkPanel({ confirmationLink, expiresAt, customerPho
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 rounded-md border bg-white p-6 text-center">
+    <div className="flex flex-col items-center gap-4 rounded-md border bg-card p-6 text-center">
       <p className="text-sm text-muted-foreground">
         Mostre o QR code abaixo para o cliente confirmar o serviço pelo celular.
       </p>
-      <div className="rounded-md border bg-white p-3">
+      <div className="rounded-md border bg-card p-3">
         <QRCodeSVG value={absoluteUrl} size={200} />
       </div>
 

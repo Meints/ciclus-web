@@ -2,10 +2,6 @@ import { z } from "zod";
 
 export const contractSchema = z.object({
   customerId: z.string({ required_error: "Selecione o cliente" }).min(1, "Selecione o cliente"),
-  serviceType: z.enum(
-    ["AIR_CONDITIONING", "PEST_CONTROL", "CLEANING", "BUILDING_MAINTENANCE", "OTHER"],
-    { required_error: "Selecione o tipo de serviço" }
-  ),
   frequency: z.enum(["MONTHLY", "BIMONTHLY", "QUARTERLY", "SEMIANNUAL", "YEARLY"], {
     required_error: "Selecione a periodicidade",
   }),

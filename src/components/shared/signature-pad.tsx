@@ -100,7 +100,7 @@ export function SignaturePad({ value, onChange, height = 120 }: SignaturePadProp
     <div className="flex flex-col gap-1">
       <div
         className={cn(
-          "relative overflow-hidden rounded-md border bg-white",
+          "relative overflow-hidden rounded-md border bg-background",
           !value && "cursor-crosshair",
         )}
       >

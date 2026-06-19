@@ -20,7 +20,7 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { ServiceCompleteDialog } from "@/components/services/service-complete-dialog";
 import { ConfirmationLinkPanel } from "@/components/services/confirmation-link-panel";
-import { useResendConfirmation, useService, useUpdateService } from "@/hooks/use-services";
+import { useCancelService, useGenerateServicePdf, useResendConfirmation, useService, useStartService } from "@/hooks/use-services";
 import { useAuthStore } from "@/store/auth.store";
 import { hasRole } from "@/lib/auth";
 import {
@@ -40,8 +40,10 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
   const canCancel = hasRole(user?.role, ["OWNER", "ADMIN"]);
 
   const { data: service, isLoading } = useService(id);
-  const updateService = useUpdateService(id);
+  const startService = useStartService(id);
+  const cancelService = useCancelService(id);
   const resendConfirmation = useResendConfirmation(id);
+  const generatePdf = useGenerateServicePdf(id);
 
   if (isLoading || !service) {
     return (
@@ -56,7 +58,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
   const canCancelOrModify = canCancel && service.status !== "CANCELLED" && service.status !== "COMPLETED";
 
   function handleStartProgress() {
-    updateService.mutate({ status: "IN_PROGRESS" });
+    startService.mutate();
   }
 
   return (
@@ -69,10 +71,10 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
             {canStartExecution && (
               <Button
                 onClick={handleStartProgress}
-                disabled={updateService.isPending}
+                disabled={startService.isPending}
                 variant="default"
               >
-                {updateService.isPending ? (
+                {startService.isPending ? (
                   <Loader2Icon className="animate-spin" />
                 ) : (
                   <PlayCircleIcon />
@@ -98,6 +100,20 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                   <FileDownIcon />
                   Laudo PDF
                 </a>
+              </Button>
+            )}
+            {service.status === "COMPLETED" && !service.reportPdfUrl && (
+              <Button
+                variant="outline"
+                onClick={() => generatePdf.mutate()}
+                disabled={generatePdf.isPending}
+              >
+                {generatePdf.isPending ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <FileDownIcon />
+                )}
+                Gerar PDF
               </Button>
             )}
           </>
@@ -321,9 +337,9 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
         description="Esta OS será marcada como cancelada e não poderá ser executada. Esta ação não pode ser desfeita."
         confirmLabel="Cancelar OS"
         destructive
-        isLoading={updateService.isPending}
+        isLoading={cancelService.isPending}
         onConfirm={() =>
-          updateService.mutate({ status: "CANCELLED" }, { onSuccess: () => setIsCancelOpen(false) })
+          cancelService.mutate(undefined, { onSuccess: () => setIsCancelOpen(false) })
         }
       />
     </div>

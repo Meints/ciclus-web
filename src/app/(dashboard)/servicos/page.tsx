@@ -39,12 +39,23 @@ export default function ServicesPage() {
   const [status, setStatus] = useState<string>(ALL);
   const [employeeId, setEmployeeId] = useState<string>(ALL);
   const [search, setSearch] = useState("");
-  const [date, setDate] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const [page, setPage] = useState(1);
   const [view, setView] = useState<string>(isTechnician ? "list" : "kanban");
 
   const { data: employees } = useEmployees({ page: 1, pageSize: 100 });
   const technicians = employees?.data ?? [];
+
+  const today = new Date();
+  const sevenDaysFromNow = new Date(today);
+  sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+
+  const dateStart = view === "kanban" && !dateFilter
+    ? today.toISOString().slice(0, 10)
+    : dateFilter || undefined;
+  const dateEnd = view === "kanban" && !dateFilter
+    ? sevenDaysFromNow.toISOString().slice(0, 10)
+    : undefined;
 
   const { data, isLoading } = useServices({
     page,
@@ -55,8 +66,8 @@ export default function ServicesPage() {
         ? undefined
         : employeeId
       : user?.id,
-    date: date || undefined,
-    search: search || undefined,
+    dateStart,
+    dateEnd,
   });
 
   const services = data?.data ?? [];
@@ -112,9 +123,9 @@ export default function ServicesPage() {
       <Input
         type="date"
         className="w-36"
-        value={date}
+        value={dateFilter}
         onChange={(event) => {
-          setDate(event.target.value);
+          setDateFilter(event.target.value);
           setPage(1);
         }}
       />

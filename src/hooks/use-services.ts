@@ -8,7 +8,6 @@ import type {
   CompleteServicePayload,
   CreateServicePayload,
   ServiceFilters,
-  UpdateServicePayload,
 } from "@/types/service";
 
 const SERVICES_KEY = "services";
@@ -44,18 +43,34 @@ export function useCreateService() {
   });
 }
 
-export function useUpdateService(id: string) {
+export function useStartService(id: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: UpdateServicePayload) => serviceService.update(id, payload),
+    mutationFn: () => serviceService.start(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [SERVICES_KEY] });
       queryClient.setQueryData([SERVICES_KEY, id], data);
-      toast.success("Ordem de serviço atualizada.");
+      toast.success("Serviço iniciado com sucesso.");
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Não foi possível atualizar a ordem de serviço.");
+      toast.error(error.message || "Não foi possível iniciar o serviço.");
+    },
+  });
+}
+
+export function useCancelService(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (reason?: string) => serviceService.cancel(id, reason),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [SERVICES_KEY] });
+      queryClient.setQueryData([SERVICES_KEY, id], data);
+      toast.success("Ordem de serviço cancelada.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Não foi possível cancelar a ordem de serviço.");
     },
   });
 }
@@ -97,6 +112,24 @@ export function useUploadServicePhoto(serviceId: string) {
     mutationFn: (file: File) => serviceService.uploadPhoto(serviceId, file),
     onError: (error: Error) => {
       toast.error(error.message || "Não foi possível enviar a foto.");
+    },
+  });
+}
+
+export function useGenerateServicePdf(serviceId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => serviceService.generatePdf(serviceId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [SERVICES_KEY] });
+      queryClient.setQueryData([SERVICES_KEY, serviceId], (old: any) =>
+        old ? { ...old, reportPdfUrl: data.reportPdfUrl } : old
+      );
+      toast.success("PDF gerado com sucesso.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Não foi possível gerar o PDF.");
     },
   });
 }

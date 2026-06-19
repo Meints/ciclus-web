@@ -25,7 +25,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomerCombobox } from "@/components/customers/customer-combobox";
 import { serviceSchema, type ServiceFormValues } from "@/lib/validations/service";
-import { CONTRACT_FREQUENCY_LABELS, SERVICE_TYPE_LABELS } from "@/lib/labels";
+import { CONTRACT_FREQUENCY_LABELS } from "@/lib/labels";
 import { getServiceTypes } from "@/lib/service-types";
 import { useContracts } from "@/hooks/use-contracts";
 import { useEmployees } from "@/hooks/use-employees";
@@ -134,7 +134,6 @@ export function ServiceForm({
                     <SelectContent>
                       {contracts?.data.map((contract) => (
                         <SelectItem key={contract.id} value={contract.id}>
-                          {SERVICE_TYPE_LABELS[contract.serviceType]} ·{" "}
                           {CONTRACT_FREQUENCY_LABELS[contract.frequency]}
                         </SelectItem>
                       ))}

@@ -1,5 +1,4 @@
 import type { ServiceStatus } from "./service";
-import type { ServiceType } from "./contract";
 
 export interface DashboardSummary {
   activeCustomers: number;
@@ -32,7 +31,6 @@ export interface ExpiringContract {
   id: string;
   customerName: string;
   customerId: string;
-  serviceType: ServiceType;
   expiresAt: string;
   daysRemaining: number;
   value: number;

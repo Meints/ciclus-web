@@ -16,7 +16,6 @@ import {
   CONTRACT_FREQUENCY_LABELS,
   SERVICE_STATUS_LABELS,
   SERVICE_STATUS_VARIANTS,
-  SERVICE_TYPE_LABELS,
 } from "@/lib/labels";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -44,7 +43,6 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
     <div className="flex flex-col gap-6">
       <PageHeader
         title={`Contrato · ${contract.customerName}`}
-        description={SERVICE_TYPE_LABELS[contract.serviceType]}
         actions={
           contract.status === "ACTIVE" && (
             <Button variant="destructive" onClick={() => setIsCancelOpen(true)}>

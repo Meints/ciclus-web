@@ -272,7 +272,7 @@ function ExpiringRow({ contract }: { contract: ExpiringContract }) {
       <div>
         <p className="text-sm font-medium">{contract.customerName}</p>
         <p className="text-xs text-muted-foreground">
-          {SERVICE_TYPE_LABELS[contract.serviceType]} · vence em{" "}
+          Vence em{" "}
           {formatDate(contract.expiresAt)} · {formatCurrency(contract.value)}
         </p>
       </div>

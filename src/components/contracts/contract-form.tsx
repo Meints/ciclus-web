@@ -27,7 +27,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomerCombobox } from "@/components/customers/customer-combobox";
 import { contractSchema, type ContractFormValues } from "@/lib/validations/contract";
-import { CONTRACT_FREQUENCY_LABELS, SERVICE_TYPE_LABELS } from "@/lib/labels";
+import { CONTRACT_FREQUENCY_LABELS } from "@/lib/labels";
 import { useEmployees } from "@/hooks/use-employees";
 
 function formatDate(date: Date): string {
@@ -59,7 +59,6 @@ export function ContractForm({
     resolver: zodResolver(contractSchema),
     defaultValues: {
       customerId: "",
-      serviceType: "AIR_CONDITIONING",
       frequency: "MONTHLY",
       startDate: formatDate(new Date()),
       endDate: "",
@@ -98,31 +97,6 @@ export function ContractForm({
                   <FormControl>
                     <CustomerCombobox value={field.value} onChange={field.onChange} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="serviceType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo de serviço</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {Object.entries(SERVICE_TYPE_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

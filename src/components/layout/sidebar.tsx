@@ -119,7 +119,7 @@ export function Sidebar({ className, onNavigate }: { className?: string; onNavig
                   className={cn(
                     "group flex items-center gap-3 border-l-2 border-transparent px-4 py-2 text-[13px] transition-colors",
                     isActive
-                      ? "border-brand-600 bg-brand-50 font-medium text-brand-600 dark:bg-brand-950"
+                      ? "border-brand-600 bg-brand-50 font-medium text-brand-600 dark:bg-brand-50"
                       : "text-ciclus-gray-600 hover:bg-ciclus-gray-50 dark:text-muted-foreground dark:hover:bg-accent",
                   )}
                 >
@@ -149,7 +149,7 @@ export function Sidebar({ className, onNavigate }: { className?: string; onNavig
           className={cn(
             "flex items-center gap-3 border-l-2 border-transparent px-4 py-2 text-[13px] transition-colors",
             pathname.startsWith("/configuracoes")
-              ? "border-brand-600 bg-brand-50 font-medium text-brand-600 dark:bg-brand-950"
+              ? "border-brand-600 bg-brand-50 font-medium text-brand-600 dark:bg-brand-50"
               : "text-ciclus-gray-600 hover:bg-ciclus-gray-50 dark:text-muted-foreground dark:hover:bg-accent",
           )}
         >
@@ -157,7 +157,7 @@ export function Sidebar({ className, onNavigate }: { className?: string; onNavig
           Configurações
         </Link>
         <div className="flex items-center gap-2 px-4 py-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50 text-xs font-medium text-brand-600 dark:bg-brand-950">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50 text-xs font-medium text-brand-600 dark:bg-brand-50">
             {user ? getInitials(user.name) : "?"}
           </div>
           <div className="flex min-w-0 flex-col">

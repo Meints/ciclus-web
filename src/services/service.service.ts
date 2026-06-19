@@ -5,7 +5,6 @@ import type {
   CreateServicePayload,
   Service,
   ServiceFilters,
-  UpdateServicePayload,
 } from "@/types/service";
 
 export const serviceService = {
@@ -28,8 +27,8 @@ export const serviceService = {
     return data;
   },
 
-  async update(id: string, payload: UpdateServicePayload): Promise<Service> {
-    const { data } = await api.put<Service>(`/services/${id}`, payload);
+  async start(id: string): Promise<Service> {
+    const { data } = await api.patch<Service>(`/services/${id}/start`);
     return data;
   },
 
@@ -38,13 +37,14 @@ export const serviceService = {
     return data;
   },
 
-  async resendConfirmation(id: string): Promise<Service> {
-    const { data } = await api.post<Service>(`/services/${id}/resend-confirmation`);
+  async cancel(id: string, reason?: string): Promise<Service> {
+    const { data } = await api.patch<Service>(`/services/${id}/cancel`, { reason });
     return data;
   },
 
-  async remove(id: string): Promise<void> {
-    await api.delete(`/services/${id}`);
+  async resendConfirmation(id: string): Promise<Service> {
+    const { data } = await api.post<Service>(`/services/${id}/resend-confirmation`);
+    return data;
   },
 
   async uploadPhoto(serviceId: string, file: File): Promise<{ url: string }> {
@@ -55,6 +55,23 @@ export const serviceService = {
       formData,
       { headers: { "Content-Type": "multipart/form-data" } }
     );
+    return data;
+  },
+
+  async generatePdf(id: string): Promise<{ reportPdfUrl: string }> {
+    const { data } = await api.post<{ reportPdfUrl: string }>(
+      `/services/${id}/generate-pdf`
+    );
+    return data;
+  },
+
+  async revert(id: string): Promise<Service> {
+    const { data } = await api.patch<Service>(`/services/${id}/revert`);
+    return data;
+  },
+
+  async reopen(id: string): Promise<Service> {
+    const { data } = await api.patch<Service>(`/services/${id}/reopen`);
     return data;
   },
 };

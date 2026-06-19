@@ -13,7 +13,7 @@ const buttonVariants = cva(
         outline:
           "border-[0.5px] border-input bg-background text-ciclus-gray-800 hover:bg-ciclus-gray-50",
         secondary:
-          "border-[0.5px] border-input bg-white text-ciclus-gray-800 hover:bg-ciclus-gray-50",
+          "border-[0.5px] border-input bg-background text-ciclus-gray-800 hover:bg-ciclus-gray-50",
         ghost: "text-ciclus-gray-600 hover:bg-ciclus-gray-50",
         link: "text-ciclus-blue-600 underline-offset-4 hover:underline",
       },

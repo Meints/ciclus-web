@@ -111,7 +111,7 @@ export function Header({ onQuickAction }: HeaderProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button type="button" className="flex items-center gap-2 rounded-md px-1 py-1 hover:bg-ciclus-gray-50 dark:hover:bg-accent">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50 text-xs font-medium text-brand-600 dark:bg-brand-950">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50 text-xs font-medium text-brand-600 dark:bg-brand-50">
                 {user ? getInitials(user.name) : "?"}
               </div>
               <div className="hidden flex-col items-start sm:flex">

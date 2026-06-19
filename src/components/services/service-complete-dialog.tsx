@@ -21,13 +21,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { SignaturePad } from "@/components/shared/signature-pad";
 import { ConfirmationLinkPanel } from "@/components/services/confirmation-link-panel";
 import { completeServiceSchema, type CompleteServiceFormValues } from "@/lib/validations/service";
 import { useCompleteService, useUploadServicePhoto } from "@/hooks/use-services";
 import { EQUIPMENT_TYPE_LABELS } from "@/lib/labels";
 import { cn } from "@/lib/utils";
-import type { Service } from "@/types/service";
+import type { CompleteServicePayload, Service } from "@/types/service";
 import type { Equipment } from "@/types/equipment";
 
 interface ServiceCompleteDialogProps {
@@ -81,7 +80,6 @@ export function ServiceCompleteDialog({
   const [photos, setPhotos] = useState<{ url: string; name: string }[]>([]);
   const [equipmentNotes, setEquipmentNotes] = useState<Record<string, string>>({});
   const [completedService, setCompletedService] = useState<Service | null>(null);
-  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -90,16 +88,15 @@ export function ServiceCompleteDialog({
 
   const form = useForm<CompleteServiceFormValues>({
     resolver: zodResolver(completeServiceSchema),
-    defaultValues: { notes: "", photoUrls: [] },
+    defaultValues: { executionNotes: "" },
   });
 
   useEffect(() => {
     if (!open) {
-      form.reset({ notes: "", photoUrls: [] });
+      form.reset({ executionNotes: "" });
       setPhotos([]);
       setEquipmentNotes({});
       setCompletedService(null);
-      setSignatureDataUrl(null);
     }
   }, [open, form]);
 
@@ -127,11 +124,7 @@ export function ServiceCompleteDialog({
         }
       }
 
-      setPhotos((prev) => {
-        const next = [...prev, ...newPhotos];
-        form.setValue("photoUrls", next.map((p) => p.url), { shouldValidate: true });
-        return next;
-      });
+      setPhotos((prev) => [...prev, ...newPhotos]);
     } finally {
       setUploading(false);
     }
@@ -140,11 +133,7 @@ export function ServiceCompleteDialog({
   }, [form, uploadPhoto]);
 
   function handleRemovePhoto(url: string) {
-    setPhotos((prev) => {
-      const next = prev.filter((photo) => photo.url !== url);
-      form.setValue("photoUrls", next.map((p) => p.url), { shouldValidate: true });
-      return next;
-    });
+    setPhotos((prev) => prev.filter((photo) => photo.url !== url));
   }
 
   function handleCameraCapture() {
@@ -156,12 +145,11 @@ export function ServiceCompleteDialog({
   }
 
   function onSubmit(values: CompleteServiceFormValues) {
-    const payload: CompleteServiceFormValues = {
-      ...values,
+    const payload: CompleteServicePayload = {
+      executionNotes: values.executionNotes,
       equipmentNotes: Object.entries(equipmentNotes)
         .filter(([, note]) => note.trim().length > 0)
         .map(([equipmentId, note]) => ({ equipmentId, note })),
-      signatureDataUrl: signatureDataUrl ?? undefined,
     };
     completeService.mutate(payload, {
       onSuccess: (data) => {
@@ -204,7 +192,7 @@ export function ServiceCompleteDialog({
               <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
                 <FormField
                   control={form.control}
-                  name="notes"
+                  name="executionNotes"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Observações</FormLabel>
@@ -221,77 +209,66 @@ export function ServiceCompleteDialog({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="photoUrls"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Fotos da execução</FormLabel>
-                      <FormControl>
-                        <div className="flex flex-col gap-2">
-                          <div className="flex gap-2">
-                            <label
-                              className={cn(
-                                "flex h-20 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-sm text-muted-foreground hover:bg-accent/40 transition-colors",
-                                uploading && "pointer-events-none opacity-50",
-                              )}
-                            >
-                              <UploadIcon className="h-4 w-4" />
-                              {uploading ? "Comprimindo..." : "Galeria"}
-                              <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                className="hidden"
-                                onChange={handlePhotoChange}
-                                disabled={uploading}
-                              />
-                            </label>
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-medium">Fotos da execução</p>
+                  <div className="flex gap-2">
+                    <label
+                      className={cn(
+                        "flex h-20 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-sm text-muted-foreground hover:bg-accent/40 transition-colors",
+                        uploading && "pointer-events-none opacity-50",
+                      )}
+                    >
+                      <UploadIcon className="h-4 w-4" />
+                      {uploading ? "Comprimindo..." : "Galeria"}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={handlePhotoChange}
+                        disabled={uploading}
+                      />
+                    </label>
 
-                            <button
-                              type="button"
-                              onClick={handleCameraCapture}
-                              disabled={uploading}
-                              className={cn(
-                                "flex h-20 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-sm text-muted-foreground hover:bg-accent/40 transition-colors",
-                                uploading && "pointer-events-none opacity-50",
-                              )}
-                            >
-                              <CameraIcon className="h-4 w-4" />
-                              Câmera
-                            </button>
-                          </div>
+                    <button
+                      type="button"
+                      onClick={handleCameraCapture}
+                      disabled={uploading}
+                      className={cn(
+                        "flex h-20 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-sm text-muted-foreground hover:bg-accent/40 transition-colors",
+                        uploading && "pointer-events-none opacity-50",
+                      )}
+                    >
+                      <CameraIcon className="h-4 w-4" />
+                      Câmera
+                    </button>
+                  </div>
 
-                          {photos.length > 0 && (
-                            <div className="grid grid-cols-3 gap-2">
-                              {photos.map((photo) => (
-                                <div
-                                  key={photo.url}
-                                  className="group relative aspect-square overflow-hidden rounded-md border"
-                                >
-                                  <img
-                                    src={photo.url}
-                                    alt={photo.name}
-                                    className="h-full w-full object-cover"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemovePhoto(photo.url)}
-                                    className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 tap-target"
-                                  >
-                                    <TrashIcon className="h-3 w-3" />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                  {photos.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {photos.map((photo) => (
+                        <div
+                          key={photo.url}
+                          className="group relative aspect-square overflow-hidden rounded-md border"
+                        >
+                          <img
+                            src={photo.url}
+                            alt={photo.name}
+                            className="h-full w-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhoto(photo.url)}
+                            className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 tap-target"
+                          >
+                            <TrashIcon className="h-3 w-3" />
+                          </button>
                         </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                      ))}
+                    </div>
                   )}
-                />
+                </div>
 
                 {equipment.length > 0 && (
                   <div className="flex flex-col gap-2">
@@ -317,14 +294,6 @@ export function ServiceCompleteDialog({
                     ))}
                   </div>
                 )}
-
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm font-medium">Assinatura do cliente (opcional)</p>
-                  <SignaturePad
-                    value={signatureDataUrl}
-                    onChange={setSignatureDataUrl}
-                  />
-                </div>
 
                 <DialogFooter className="flex-col gap-2 sm:flex-row">
                   <Button
