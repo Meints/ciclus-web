@@ -35,7 +35,7 @@ export function useCreateContract() {
     mutationFn: (payload: CreateContractPayload) => contractService.create(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CONTRACTS_KEY] });
-      toast.success("Contrato criado com sucesso. A primeira OS já foi agendada.");
+      toast.success("Contrato criado com sucesso.");
     },
     onError: (error: Error) => {
       toast.error(error.message || "Não foi possível criar o contrato.");

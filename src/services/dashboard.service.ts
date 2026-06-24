@@ -3,6 +3,7 @@ import type {
   DashboardSummary,
   ExpiringContract,
   MonthlyRevenue,
+  RecentActivity,
   TechnicianStatus,
   UpcomingService,
 } from "@/types/dashboard";
@@ -13,7 +14,7 @@ export const dashboardService = {
     return data;
   },
 
-  async getUpcomingServices(range?: { start: string; end: string }): Promise<UpcomingService[]> {
+  async getUpcomingServices(range?: { start: string; end: string; limit?: number }): Promise<UpcomingService[]> {
     const { data } = await api.get<UpcomingService[]>("/dashboard/upcoming-services", {
       params: range,
     });
@@ -32,6 +33,11 @@ export const dashboardService = {
 
   async getMonthlyRevenue(): Promise<MonthlyRevenue[]> {
     const { data } = await api.get<MonthlyRevenue[]>("/dashboard/monthly-revenue");
+    return data;
+  },
+
+  async getRecentActivity(): Promise<RecentActivity[]> {
+    const { data } = await api.get<RecentActivity[]>("/dashboard/recent-activity");
     return data;
   },
 };

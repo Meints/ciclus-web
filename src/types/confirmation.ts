@@ -1,12 +1,26 @@
-export type ConfirmationViewStatus = "PENDING" | "CONFIRMED" | "EXPIRED" | "NOT_FOUND";
+export interface ConfirmationEquipment {
+  type: string;
+  brand: string | null;
+  model: string | null;
+  location: string | null;
+}
 
-export interface ConfirmationSummary {
-  status: ConfirmationViewStatus;
-  serviceId: string | null;
-  companyName: string | null;
-  serviceTypeLabel: string | null;
-  customerName: string | null;
-  technicianName: string | null;
-  completedAt: string | null;
-  confirmedAt: string | null;
+export interface ConfirmationData {
+  alreadyConfirmed?: boolean;
+  confirmedAt?: string;
+  serviceNumber?: number;
+  serviceType?: string | null;
+  scheduledAt?: string;
+  completedDate?: string | null;
+  technicianName?: string | null;
+  companyName?: string;
+  companyLogo?: string | null;
+  customerName?: string;
+  equipment?: ConfirmationEquipment[];
+}
+
+export interface ConfirmPayload {
+  name: string;
+  document?: string;
+  documentType?: "CPF" | "CNPJ";
 }

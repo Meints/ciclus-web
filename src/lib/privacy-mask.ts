@@ -4,7 +4,7 @@ export function maskDocumentPrivacy(value: string, type: "CPF" | "CNPJ"): string
   const digits = onlyDigits(value);
   if (type === "CPF") {
     if (digits.length !== 11) return "***.***.***-**";
-    return `***.***.***-${digits.slice(-2)}`;
+    return `${digits.slice(0, 3)}.***.***-${digits.slice(-2)}`;
   }
   if (digits.length !== 14) return "**.***.***/***-**";
   return `**.***.${digits.slice(3, 6)}/${digits.slice(6, 9)}-**`;

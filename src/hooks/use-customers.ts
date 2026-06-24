@@ -59,6 +59,20 @@ export function useUpdateCustomer(id: string) {
   });
 }
 
+export function useToggleCustomer() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => customerService.toggle(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [CUSTOMERS_KEY] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Não foi possível alterar o status do cliente.");
+    },
+  });
+}
+
 export function useDeleteCustomer() {
   const queryClient = useQueryClient();
 

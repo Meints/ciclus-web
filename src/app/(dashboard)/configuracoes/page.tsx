@@ -1,8 +1,9 @@
 "use client";
 
+import { useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { AlertTriangleIcon, Loader2Icon } from "lucide-react";
+import { AlertTriangleIcon, ImageIcon, Loader2Icon, UploadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,7 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { PageHeader } from "@/components/shared/page-header";
 import { useRequireAuth, useChangePassword } from "@/hooks/use-auth";
 import { useDashboardSummary } from "@/hooks/use-dashboard";
-import { useUpdateCompanyNiche } from "@/hooks/use-company";
+import { useUpdateCompanyNiche, useUploadCompanyLogo } from "@/hooks/use-company";
 import { changePasswordSchema, type ChangePasswordFormValues } from "@/lib/validations/auth";
 import { getRoleLabel } from "@/lib/auth";
 import { NICHE_LABELS, type ServiceNiche } from "@/lib/service-types";
@@ -34,6 +35,8 @@ export default function SettingsPage() {
   const { data: summary, isLoading: isSummaryLoading } = useDashboardSummary();
   const changePassword = useChangePassword();
   const updateNiche = useUpdateCompanyNiche();
+  const uploadLogo = useUploadCompanyLogo();
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
@@ -74,6 +77,51 @@ export default function SettingsPage() {
           <div>
             <p className="text-xs text-muted-foreground">Seu papel</p>
             <p className="font-medium">{user ? getRoleLabel(user.role) : ""}</p>
+          </div>
+          <div className="sm:col-span-2">
+            <p className="mb-1.5 text-xs font-medium text-muted-foreground">Logo da empresa</p>
+            <div className="flex items-center gap-4">
+              {user?.logoUrl ? (
+                <img
+                  src={user.logoUrl}
+                  alt="Logo"
+                  className="h-16 w-16 rounded-lg border object-contain"
+                />
+              ) : (
+                <div className="flex h-16 w-16 items-center justify-center rounded-lg border bg-muted">
+                  <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                </div>
+              )}
+              <div className="flex flex-col gap-2">
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) uploadLogo.mutate(file);
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={uploadLogo.isPending}
+                >
+                  {uploadLogo.isPending ? (
+                    <Loader2Icon className="animate-spin" />
+                  ) : (
+                    <UploadIcon />
+                  )}
+                  {user?.logoUrl ? "Trocar logo" : "Enviar logo"}
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  PNG, JPG ou WebP
+                </p>
+              </div>
+            </div>
           </div>
           <div className="sm:col-span-2">
             <p className="mb-1.5 text-xs font-medium text-muted-foreground">

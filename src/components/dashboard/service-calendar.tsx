@@ -8,6 +8,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import type { EventClickArg, EventInput } from "@fullcalendar/core";
+import ptBrLocale from "@fullcalendar/core/locales/pt-br";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,7 @@ import {
 import { Loader2Icon } from "lucide-react";
 import { useCalendarServices } from "@/hooks/use-dashboard";
 import { getServiceTypeLabel } from "@/lib/service-types";
-import { formatDateTime } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import type { ServiceStatus } from "@/types/service";
 import type { UpcomingService } from "@/types/dashboard";
 
@@ -29,10 +30,37 @@ const STATUS_COLORS: Record<ServiceStatus, string> = {
   IN_PROGRESS: "#854F0B",
   COMPLETED: "#0F6E56",
   CANCELLED: "#A32D2D",
+  CONFIRMED: "#0F6E56",
+  NOT_FOUND: "#A32D2D",
+  RESCHEDULED: "#854F0B",
 };
 
 function toDateOnly(date: Date): string {
   return date.toISOString().slice(0, 10);
+}
+
+function formatServiceTime(date: string, time?: string | null): string {
+  if (time) {
+    const parts = time.split(":");
+    return `${parts[0]}:${parts[1]}`;
+  }
+  return "Sem horário";
+}
+
+function buildEventStart(service: UpcomingService): string {
+  const datePart = service.scheduledDate.slice(0, 10);
+  if (service.scheduledTime) {
+    return `${datePart}T${service.scheduledTime}:00`;
+  }
+  return datePart;
+}
+
+function buildEventEnd(service: UpcomingService): string | undefined {
+  if (!service.scheduledTime || !service.estimatedDurationMinutes) return undefined;
+  const datePart = service.scheduledDate.slice(0, 10);
+  const start = new Date(`${datePart}T${service.scheduledTime}:00`);
+  start.setMinutes(start.getMinutes() + service.estimatedDurationMinutes);
+  return start.toISOString();
 }
 
 export function ServiceCalendar() {
@@ -50,7 +78,9 @@ export function ServiceCalendar() {
   const events: EventInput[] = (services ?? []).map((service) => ({
     id: service.id,
     title: `${service.customerName} — ${getServiceTypeLabel(service.serviceType)}`,
-    start: service.scheduledDate,
+    start: buildEventStart(service),
+    end: buildEventEnd(service),
+    allDay: !service.scheduledTime,
     backgroundColor: STATUS_COLORS[service.status],
     borderColor: STATUS_COLORS[service.status],
     extendedProps: { service },
@@ -72,19 +102,20 @@ export function ServiceCalendar() {
         )}
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
+          initialView="timeGridWeek"
           headerToolbar={{
             left: "prev,next today",
             center: "title",
-            right: "dayGridMonth,timeGridWeek,listWeek",
+            right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
           }}
           buttonText={{
             today: "Hoje",
             month: "Mês",
             week: "Semana",
+            day: "Dia",
             list: "Lista",
           }}
-          locale="pt-br"
+          locale={ptBrLocale}
           height="auto"
           events={events}
           eventClick={handleEventClick}
@@ -93,6 +124,15 @@ export function ServiceCalendar() {
               start: toDateOnly(arg.view.activeStart),
               end: toDateOnly(arg.view.activeEnd),
             });
+          }}
+          slotMinTime="06:00:00"
+          slotMaxTime="20:00:00"
+          slotDuration="00:30:00"
+          allDaySlot={false}
+          eventTimeFormat={{
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
           }}
         />
       </CardContent>
@@ -113,8 +153,17 @@ export function ServiceCalendar() {
                 {selected.employeeName ?? "Não atribuído"}
               </p>
               <p>
+                <span className="text-muted-foreground">Data: </span>
+                {formatDate(selected.scheduledDate)}
+              </p>
+              <p>
                 <span className="text-muted-foreground">Horário: </span>
-                {formatDateTime(selected.scheduledDate)}
+                {formatServiceTime(selected.scheduledDate, selected.scheduledTime)}
+                {selected.estimatedDurationMinutes && selected.scheduledTime && (
+                  <span className="text-muted-foreground">
+                    {" "}({selected.estimatedDurationMinutes}min)
+                  </span>
+                )}
               </p>
             </div>
           )}

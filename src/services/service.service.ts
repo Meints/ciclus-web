@@ -5,6 +5,7 @@ import type {
   CreateServicePayload,
   Service,
   ServiceFilters,
+  UpdateServicePayload,
 } from "@/types/service";
 
 export const serviceService = {
@@ -62,6 +63,11 @@ export const serviceService = {
     const { data } = await api.post<{ reportPdfUrl: string }>(
       `/services/${id}/generate-pdf`
     );
+    return data;
+  },
+
+  async update(id: string, payload: UpdateServicePayload): Promise<Service> {
+    const { data } = await api.patch<Service>(`/services/${id}`, payload);
     return data;
   },
 

@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { Loader2Icon } from "lucide-react";
 import { addDays } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CurrencyInput } from "@/components/shared/currency-input";
 import {
@@ -26,9 +25,9 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomerCombobox } from "@/components/customers/customer-combobox";
+import { DatePicker } from "@/components/ui/date-picker";
 import { contractSchema, type ContractFormValues } from "@/lib/validations/contract";
 import { CONTRACT_FREQUENCY_LABELS } from "@/lib/labels";
-import { useEmployees } from "@/hooks/use-employees";
 
 function formatDate(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -53,8 +52,6 @@ export function ContractForm({
   isSubmitting = false,
   submitLabel = "Salvar contrato",
 }: ContractFormProps) {
-  const { data: employees } = useEmployees({ page: 1, pageSize: 100 });
-
   const form = useForm<ContractFormValues>({
     resolver: zodResolver(contractSchema),
     defaultValues: {
@@ -63,7 +60,6 @@ export function ContractForm({
       startDate: formatDate(new Date()),
       endDate: "",
       value: 0,
-      responsibleEmployeeId: "",
       notes: "",
       ...defaultValues,
     },
@@ -134,7 +130,21 @@ export function ContractForm({
                 <FormItem>
                   <FormLabel>Data de início</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <DatePicker value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="value"
+              render={({ field }) => (
+                <FormItem className="self-start">
+                  <FormLabel>Valor (R$)</FormLabel>
+                  <FormControl>
+                    <CurrencyInput value={field.value} onChange={field.onChange} placeholder="0,00" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -145,11 +155,11 @@ export function ContractForm({
               control={form.control}
               name="endDate"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="self-start">
                   <FormLabel>Data de término</FormLabel>
                   <div className="flex flex-col gap-2">
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <DatePicker value={field.value} onChange={field.onChange} />
                     </FormControl>
                     <div className="flex flex-wrap gap-1">
                       {QUICK_OPTIONS.map((opt) => (
@@ -166,45 +176,6 @@ export function ContractForm({
                       ))}
                     </div>
                   </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="value"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Valor (R$)</FormLabel>
-                  <FormControl>
-                    <CurrencyInput value={field.value} onChange={field.onChange} placeholder="0,00" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="responsibleEmployeeId"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-2">
-                  <FormLabel>Técnico responsável</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um técnico (opcional)" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {employees?.data.map((employee) => (
-                        <SelectItem key={employee.id} value={employee.id}>
-                          {employee.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

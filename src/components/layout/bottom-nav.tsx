@@ -24,7 +24,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: "Início", href: "/", icon: HomeIcon, roles: ["OWNER", "ADMIN", "TECHNICIAN"] },
   { label: "Serviços", href: "/servicos", icon: ClipboardListIcon, roles: ["OWNER", "ADMIN", "TECHNICIAN"] },
-  { label: "Criar", href: "/servicos/novo", icon: PlusCircleIcon, roles: ["OWNER", "ADMIN"], primary: true },
+  { label: "Criar", href: "/servicos?quickCreate=true", icon: PlusCircleIcon, roles: ["OWNER", "ADMIN"], primary: true },
   { label: "Clientes", href: "/clientes", icon: UsersIcon, roles: ["OWNER", "ADMIN"] },
 ];
 

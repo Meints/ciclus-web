@@ -19,6 +19,4 @@ export interface CreateEmployeePayload {
   phone?: string;
 }
 
-export type UpdateEmployeePayload = Partial<CreateEmployeePayload> & {
-  status?: EmployeeStatus;
-};
+export type UpdateEmployeePayload = Partial<CreateEmployeePayload>;

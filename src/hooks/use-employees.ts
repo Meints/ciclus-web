@@ -54,3 +54,25 @@ export function useUpdateEmployee(id: string) {
     },
   });
 }
+
+export function useToggleEmployee() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => employeeService.toggle(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [EMPLOYEES_KEY] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Não foi possível alterar o status do membro.");
+    },
+  });
+}
+
+export function useEmployeeAvailability(id: string | undefined, date: string) {
+  return useQuery({
+    queryKey: [EMPLOYEES_KEY, "availability", id, date],
+    queryFn: () => employeeService.getAvailability(id as string, date),
+    enabled: Boolean(id) && Boolean(date),
+  });
+}

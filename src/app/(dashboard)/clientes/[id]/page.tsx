@@ -19,7 +19,7 @@ import { CustomerCard } from "@/components/customers/customer-card";
 import { CustomerForm } from "@/components/customers/customer-form";
 import { EquipmentForm } from "@/components/equipment/equipment-form";
 import { EquipmentTable } from "@/components/equipment/equipment-table";
-import { useCustomer, useUpdateCustomer } from "@/hooks/use-customers";
+import { useCustomer, useUpdateCustomer, useToggleCustomer } from "@/hooks/use-customers";
 import { useContracts } from "@/hooks/use-contracts";
 import { useServices } from "@/hooks/use-services";
 import {
@@ -46,6 +46,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
 
   const { data: customer, isLoading } = useCustomer(id);
   const updateCustomer = useUpdateCustomer(id);
+  const toggleCustomer = useToggleCustomer();
 
   const { data: contracts, isLoading: isContractsLoading } = useContracts({
     customerId: id,
@@ -103,10 +104,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
 
   function handleDeactivate() {
     if (!customer) return;
-    updateCustomer.mutate(
-      { status: customer.status === "ACTIVE" ? "INACTIVE" : "ACTIVE" },
-      { onSuccess: () => setIsDeactivateOpen(false) }
-    );
+    toggleCustomer.mutate(customer.id, { onSuccess: () => setIsDeactivateOpen(false) });
   }
 
   if (isLoading || !customer) {
@@ -309,7 +307,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
         }
         confirmLabel={customer.status === "ACTIVE" ? "Desativar" : "Reativar"}
         destructive={customer.status === "ACTIVE"}
-        isLoading={updateCustomer.isPending}
+        isLoading={toggleCustomer.isPending}
         onConfirm={handleDeactivate}
       />
     </div>

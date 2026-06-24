@@ -8,19 +8,28 @@ import {
   FileDownIcon,
   Loader2Icon,
   MapPinIcon,
+  PencilIcon,
   PlayCircleIcon,
   SendIcon,
   UserIcon,
   XCircleIcon,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { Tooltip } from "@/components/ui/tooltip";
 import { ServiceCompleteDialog } from "@/components/services/service-complete-dialog";
+import { ServiceForm } from "@/components/services/service-form";
 import { ConfirmationLinkPanel } from "@/components/services/confirmation-link-panel";
-import { useCancelService, useGenerateServicePdf, useResendConfirmation, useService, useStartService } from "@/hooks/use-services";
+import { useCancelService, useGenerateServicePdf, useResendConfirmation, useService, useStartService, useUpdateService } from "@/hooks/use-services";
 import { useAuthStore } from "@/store/auth.store";
 import { hasRole } from "@/lib/auth";
 import {
@@ -35,6 +44,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
   const { id } = use(params);
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const user = useAuthStore((state) => state.user);
   const canCancel = hasRole(user?.role, ["OWNER", "ADMIN"]);
@@ -44,6 +54,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
   const cancelService = useCancelService(id);
   const resendConfirmation = useResendConfirmation(id);
   const generatePdf = useGenerateServicePdf(id);
+  const updateService = useUpdateService(id);
 
   if (isLoading || !service) {
     return (
@@ -53,12 +64,29 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
     );
   }
 
+  const isAdminOrOwner = hasRole(user?.role, ["OWNER", "ADMIN"]);
+  const canEdit = service.status === "SCHEDULED" && isAdminOrOwner;
   const canStartExecution = service.status === "SCHEDULED";
   const canRegisterExecution = service.status === "IN_PROGRESS";
-  const canCancelOrModify = canCancel && service.status !== "CANCELLED" && service.status !== "COMPLETED";
+  const canCancelOrModify = canCancel && !["CANCELLED", "COMPLETED", "CONFIRMED"].includes(service.status);
 
   function handleStartProgress() {
     startService.mutate();
+  }
+
+  function handleEditSubmit(values: import("@/lib/validations/service").ServiceFormValues) {
+    updateService.mutate(
+      {
+        customerId: values.customerId,
+        contractId: values.contractId,
+        serviceType: values.serviceType,
+        scheduledDate: values.scheduledDate,
+        scheduledTime: values.scheduledTime || null,
+        employeeId: values.employeeId || null,
+        equipmentIds: values.equipmentIds,
+      },
+      { onSuccess: () => setIsEditOpen(false) },
+    );
   }
 
   return (
@@ -68,6 +96,12 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
         description={getServiceTypeLabel(service.serviceType)}
         actions={
           <>
+            {canEdit && (
+              <Button onClick={() => setIsEditOpen(true)}>
+                <PencilIcon />
+                Editar
+              </Button>
+            )}
             {canStartExecution && (
               <Button
                 onClick={handleStartProgress}
@@ -102,7 +136,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                 </a>
               </Button>
             )}
-            {service.status === "COMPLETED" && !service.reportPdfUrl && (
+            {service.status === "CONFIRMED" && !service.reportPdfUrl && (
               <Button
                 variant="outline"
                 onClick={() => generatePdf.mutate()}
@@ -134,10 +168,17 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Endereço</p>
-            <p className="flex items-center gap-1 font-medium">
-              <MapPinIcon className="h-3 w-3 shrink-0 text-muted-foreground" />
-              {service.customerAddress}
-            </p>
+            <Tooltip content="Abrir no Google Maps">
+              <a
+                href={`https://www.google.com/maps/search/${encodeURIComponent(service.customerAddress)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1 font-medium hover:text-primary transition-colors"
+              >
+                <MapPinIcon className="h-3 w-3 shrink-0 text-muted-foreground" />
+                {service.customerAddress}
+              </a>
+            </Tooltip>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Status</p>
@@ -151,6 +192,11 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
             <p className="flex items-center gap-1 font-medium">
               <CalendarIcon className="h-3 w-3 text-muted-foreground" />
               {formatDate(service.scheduledDate)}
+              {service.scheduledTime && (
+                <span className="text-muted-foreground">
+                  às {service.scheduledTime.slice(0, 5)}
+                </span>
+              )}
             </p>
           </div>
           <div>
@@ -227,6 +273,16 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                 <p className="text-xs text-muted-foreground">Concluído em</p>
                 <p className="font-medium">{formatDateTime(service.execution.completedAt)}</p>
               </div>
+              {service.durationMinutes && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Tempo gasto</p>
+                  <p className="font-medium">
+                    {service.durationMinutes >= 60
+                      ? `${Math.floor(service.durationMinutes / 60)}h ${service.durationMinutes % 60}min`
+                      : `${service.durationMinutes} min`}
+                  </p>
+                </div>
+              )}
               {service.employeeName && (
                 <div>
                   <p className="text-xs text-muted-foreground">Executado por</p>
@@ -292,6 +348,13 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                   <StatusBadge label="Aguardando confirmação do cliente" variant="warning" />
                 )}
               </div>
+              {service.confirmedName && (
+                <div className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">{service.confirmedName}</span>
+                  {service.confirmedDocument &&
+                    ` · ${service.confirmedDocumentType === "CNPJ" ? "CNPJ" : "CPF"} ${service.confirmedDocument}`}
+                </div>
+              )}
               {service.confirmationStatus !== "CONFIRMED" && (
                 <Button
                   type="button"
@@ -321,9 +384,34 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
         </Card>
       )}
 
+      {/* Edit dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar ordem de serviço</DialogTitle>
+          </DialogHeader>
+          <ServiceForm
+            defaultValues={{
+              customerId: service.customerId,
+              contractId: service.contractId,
+              serviceType: service.serviceType,
+              scheduledDate: service.scheduledDate?.slice(0, 10) ?? "",
+              scheduledTime: service.scheduledTime ?? "",
+              estimatedDurationMinutes: service.estimatedDurationMinutes ?? undefined,
+              employeeId: service.employeeId ?? "",
+              equipmentIds: service.equipmentIds ?? [],
+            }}
+            onSubmit={handleEditSubmit}
+            isSubmitting={updateService.isPending}
+            submitLabel="Salvar alterações"
+          />
+        </DialogContent>
+      </Dialog>
+
       {/* Dialogs */}
       <ServiceCompleteDialog
         serviceId={service.id}
+        service={service}
         equipment={service.equipmentDetails ?? []}
         customerPhone={service.customerPhone}
         open={isCompleteOpen}

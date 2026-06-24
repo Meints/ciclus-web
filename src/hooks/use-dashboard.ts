@@ -13,7 +13,7 @@ export function useDashboardSummary() {
 export function useUpcomingServices(range?: { start: string; end: string }) {
   return useQuery({
     queryKey: ["dashboard", "upcoming-services", range],
-    queryFn: () => dashboardService.getUpcomingServices(range),
+    queryFn: () => dashboardService.getUpcomingServices(range ? { ...range, limit: 10 } : undefined),
   });
 }
 
@@ -35,6 +35,13 @@ export function useTechnicianStatus() {
   return useQuery({
     queryKey: ["dashboard", "technician-status"],
     queryFn: dashboardService.getTechnicianStatus,
+  });
+}
+
+export function useRecentActivity() {
+  return useQuery({
+    queryKey: ["dashboard", "recent-activity"],
+    queryFn: dashboardService.getRecentActivity,
   });
 }
 

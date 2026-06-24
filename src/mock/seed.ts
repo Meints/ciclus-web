@@ -280,8 +280,8 @@ function buildSeed(): MockDb {
     endDate: daysFromNow(185),
     nextVisitDate: daysFromNow(2),
     value: 1200,
-    responsibleEmployeeId: "emp-3",
-    responsibleEmployeeName: "Pedro Santos",
+
+
     notes: "Manutenção preventiva mensal dos splits das áreas comuns.",
     status: "ACTIVE",
     createdAt: daysFromNow(-180),
@@ -297,8 +297,8 @@ function buildSeed(): MockDb {
     endDate: daysFromNow(580),
     nextVisitDate: daysFromNow(10),
     value: 800,
-    responsibleEmployeeId: "emp-4",
-    responsibleEmployeeName: "Juliana Alves",
+
+
     notes: "Dedetização trimestral em todo o estoque e área de vendas.",
     status: "ACTIVE",
     createdAt: daysFromNow(-150),
@@ -314,8 +314,8 @@ function buildSeed(): MockDb {
     endDate: daysFromNow(245),
     nextVisitDate: daysFromNow(1),
     value: 2500,
-    responsibleEmployeeId: "emp-3",
-    responsibleEmployeeName: "Pedro Santos",
+
+
     notes: "Limpeza técnica de consultórios e recepção.",
     status: "ACTIVE",
     createdAt: daysFromNow(-120),
@@ -331,8 +331,8 @@ function buildSeed(): MockDb {
     endDate: daysFromNow(365),
     nextVisitDate: daysFromNow(-30),
     value: 3000,
-    responsibleEmployeeId: "emp-4",
-    responsibleEmployeeName: "Juliana Alves",
+
+
     notes: "Manutenção predial semestral da cozinha industrial.",
     status: "EXPIRED",
     createdAt: daysFromNow(-365),
@@ -348,8 +348,8 @@ function buildSeed(): MockDb {
     endDate: daysFromNow(275),
     nextVisitDate: daysFromNow(25),
     value: 600,
-    responsibleEmployeeId: "emp-3",
-    responsibleEmployeeName: "Pedro Santos",
+
+
     notes: null,
     status: "ACTIVE",
     createdAt: daysFromNow(-90),
@@ -365,8 +365,8 @@ function buildSeed(): MockDb {
     endDate: daysFromNow(65),
     nextVisitDate: null,
     value: 950,
-    responsibleEmployeeId: null,
-    responsibleEmployeeName: null,
+
+
     notes: "Contrato cancelado após encerramento das atividades na planta.",
     status: "CANCELLED",
     createdAt: daysFromNow(-300),
@@ -467,6 +467,8 @@ function buildSeed(): MockDb {
     customerAddress: "Avenida Paulista, 1500 - Bela Vista, São Paulo/SP",
     serviceType: "PREVENTIVE_MAINTENANCE",
     scheduledDate: daysFromNow(0),
+    scheduledTime: "08:00",
+    estimatedDurationMinutes: 120,
     employeeId: "emp-3",
     employeeName: "Pedro Santos",
     status: "SCHEDULED",
@@ -486,6 +488,8 @@ function buildSeed(): MockDb {
     customerAddress: "Avenida Brigadeiro Faria Lima, 2200 - Itaim Bibi, São Paulo/SP",
     serviceType: "CLEANING",
     scheduledDate: daysFromNow(1),
+    scheduledTime: "09:30",
+    estimatedDurationMinutes: 90,
     employeeId: "emp-3",
     employeeName: "Pedro Santos",
     status: "SCHEDULED",
@@ -505,6 +509,8 @@ function buildSeed(): MockDb {
     customerAddress: "Rua Barão de Jaguara, 780 - Centro, Campinas/SP",
     serviceType: "COCKROACH_CONTROL",
     scheduledDate: daysFromNow(2),
+    scheduledTime: "14:00",
+    estimatedDurationMinutes: 60,
     employeeId: "emp-4",
     employeeName: "Juliana Alves",
     status: "SCHEDULED",
@@ -524,6 +530,8 @@ function buildSeed(): MockDb {
     customerAddress: "Avenida Paulista, 1500 - Bela Vista, São Paulo/SP",
     serviceType: "PREVENTIVE_MAINTENANCE",
     scheduledDate: daysFromNow(4),
+    scheduledTime: "10:00",
+    estimatedDurationMinutes: 120,
     employeeId: "emp-3",
     employeeName: "Pedro Santos",
     status: "SCHEDULED",
@@ -543,6 +551,8 @@ function buildSeed(): MockDb {
     customerAddress: "Rua das Acácias, 45 - Jardim Flórida, Guarulhos/SP",
     serviceType: "PREVENTIVE_MAINTENANCE",
     scheduledDate: daysFromNow(-3),
+    scheduledTime: "08:30",
+    estimatedDurationMinutes: 60,
     employeeId: "emp-3",
     employeeName: "Pedro Santos",
     status: "COMPLETED",
@@ -574,6 +584,8 @@ function buildSeed(): MockDb {
     customerAddress: "Rua Antônio Belém, 320 - Centro, Osasco/SP",
     serviceType: "ELECTRICAL",
     scheduledDate: daysFromNow(-10),
+    scheduledTime: "13:00",
+    estimatedDurationMinutes: 90,
     employeeId: "emp-4",
     employeeName: "Juliana Alves",
     status: "COMPLETED",
@@ -621,6 +633,8 @@ function buildSeed(): MockDb {
     customerAddress: "Rua Barão de Jaguara, 780 - Centro, Campinas/SP",
     serviceType: "COCKROACH_CONTROL",
     scheduledDate: daysFromNow(1),
+    scheduledTime: "16:00",
+    estimatedDurationMinutes: 60,
     employeeId: "emp-4",
     employeeName: "Juliana Alves",
     status: "IN_PROGRESS",

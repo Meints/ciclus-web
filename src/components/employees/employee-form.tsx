@@ -17,17 +17,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { employeeSchema, type EmployeeFormValues } from "@/lib/validations/employee";
 
 interface EmployeeFormProps {
+  defaultValues?: Partial<EmployeeFormValues>;
   onSubmit: (values: EmployeeFormValues) => void;
   isSubmitting?: boolean;
+  submitLabel?: string;
 }
 
-export function EmployeeForm({ onSubmit, isSubmitting = false }: EmployeeFormProps) {
+export function EmployeeForm({
+  defaultValues,
+  onSubmit,
+  isSubmitting = false,
+  submitLabel = "Adicionar membro",
+}: EmployeeFormProps) {
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeSchema),
     defaultValues: {
       name: "",
       email: "",
       phone: "",
+      ...defaultValues,
     },
   });
 
@@ -86,7 +94,7 @@ export function EmployeeForm({ onSubmit, isSubmitting = false }: EmployeeFormPro
         <div className="flex justify-end gap-2">
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2Icon className="animate-spin" />}
-            Adicionar membro
+            {submitLabel}
           </Button>
         </div>
       </form>

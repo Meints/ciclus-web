@@ -3,7 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { CameraIcon, Loader2Icon, TrashIcon, UploadIcon } from "lucide-react";
+import {
+  CameraIcon,
+  ClockIcon,
+  EyeIcon,
+  FileTextIcon,
+  Loader2Icon,
+  TrashIcon,
+  UploadIcon,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -21,9 +30,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConfirmationLinkPanel } from "@/components/services/confirmation-link-panel";
+import { ServiceReportPreview } from "@/components/services/service-report-preview";
 import { completeServiceSchema, type CompleteServiceFormValues } from "@/lib/validations/service";
 import { useCompleteService, useUploadServicePhoto } from "@/hooks/use-services";
+import { useAuthStore } from "@/store/auth.store";
 import { EQUIPMENT_TYPE_LABELS } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import type { CompleteServicePayload, Service } from "@/types/service";
@@ -31,6 +43,7 @@ import type { Equipment } from "@/types/equipment";
 
 interface ServiceCompleteDialogProps {
   serviceId: string;
+  service?: Service;
   equipment?: Equipment[];
   customerPhone?: string | null;
   open: boolean;
@@ -71,6 +84,7 @@ async function compressImage(file: File, maxWidth = 1200, quality = 0.7): Promis
 
 export function ServiceCompleteDialog({
   serviceId,
+  service,
   equipment = [],
   customerPhone,
   open,
@@ -81,7 +95,10 @@ export function ServiceCompleteDialog({
   const [equipmentNotes, setEquipmentNotes] = useState<Record<string, string>>({});
   const [completedService, setCompletedService] = useState<Service | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState("form");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const user = useAuthStore((state) => state.user);
 
   const completeService = useCompleteService(serviceId);
   const uploadPhoto = useUploadServicePhoto(serviceId);
@@ -91,12 +108,16 @@ export function ServiceCompleteDialog({
     defaultValues: { executionNotes: "" },
   });
 
+  const watchedNotes = form.watch("executionNotes");
+  const watchedDuration = form.watch("durationMinutes");
+
   useEffect(() => {
     if (!open) {
-      form.reset({ executionNotes: "" });
+      form.reset({ executionNotes: "", durationMinutes: undefined });
       setPhotos([]);
       setEquipmentNotes({});
       setCompletedService(null);
+      setActiveTab("form");
     }
   }, [open, form]);
 
@@ -147,6 +168,7 @@ export function ServiceCompleteDialog({
   function onSubmit(values: CompleteServiceFormValues) {
     const payload: CompleteServicePayload = {
       executionNotes: values.executionNotes,
+      durationMinutes: values.durationMinutes ?? undefined,
       equipmentNotes: Object.entries(equipmentNotes)
         .filter(([, note]) => note.trim().length > 0)
         .map(([equipmentId, note]) => ({ equipmentId, note })),
@@ -165,7 +187,7 @@ export function ServiceCompleteDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         {completedService?.confirmationLink ? (
           <>
             <DialogHeader>
@@ -188,125 +210,205 @@ export function ServiceCompleteDialog({
               <DialogTitle>Registrar execução</DialogTitle>
             </DialogHeader>
 
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                <FormField
-                  control={form.control}
-                  name="executionNotes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Observações</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Descreva o que foi executado..."
-                          rows={4}
-                          className="text-base sm:text-sm"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="w-full">
+                <TabsTrigger value="form" className="flex-1 gap-2">
+                  <FileTextIcon className="h-4 w-4" />
+                  Formulário
+                </TabsTrigger>
+                <TabsTrigger value="preview" className="flex-1 gap-2">
+                  <EyeIcon className="h-4 w-4" />
+                  Pré-visualizar laudo
+                </TabsTrigger>
+              </TabsList>
 
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm font-medium">Fotos da execução</p>
-                  <div className="flex gap-2">
-                    <label
-                      className={cn(
-                        "flex h-20 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-sm text-muted-foreground hover:bg-accent/40 transition-colors",
-                        uploading && "pointer-events-none opacity-50",
+              <TabsContent value="form" className="mt-4">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                    <FormField
+                      control={form.control}
+                      name="executionNotes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Observações</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Descreva o que foi executado..."
+                              rows={4}
+                              maxLength={2000}
+                              className="text-base sm:text-sm"
+                              {...field}
+                            />
+                          </FormControl>
+                          <p className="text-xs text-muted-foreground text-right">
+                            {field.value?.length ?? 0}/2000
+                          </p>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    >
-                      <UploadIcon className="h-4 w-4" />
-                      {uploading ? "Comprimindo..." : "Galeria"}
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                        onChange={handlePhotoChange}
-                        disabled={uploading}
-                      />
-                    </label>
+                    />
 
-                    <button
-                      type="button"
-                      onClick={handleCameraCapture}
-                      disabled={uploading}
-                      className={cn(
-                        "flex h-20 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-sm text-muted-foreground hover:bg-accent/40 transition-colors",
-                        uploading && "pointer-events-none opacity-50",
+                    <FormField
+                      control={form.control}
+                      name="durationMinutes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Duração (minutos)</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <ClockIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                              <Input
+                                type="number"
+                                min={1}
+                                placeholder="Ex: 120"
+                                className="pl-9 text-base sm:text-sm"
+                                value={field.value ?? ""}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                ref={field.ref}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    >
-                      <CameraIcon className="h-4 w-4" />
-                      Câmera
-                    </button>
-                  </div>
+                    />
 
-                  {photos.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2">
-                      {photos.map((photo) => (
-                        <div
-                          key={photo.url}
-                          className="group relative aspect-square overflow-hidden rounded-md border"
+                    <div className="flex flex-col gap-2">
+                      <p className="text-sm font-medium">Fotos da execução</p>
+                      <div className="flex gap-2">
+                        <label
+                          className={cn(
+                            "flex h-20 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-sm text-muted-foreground hover:bg-accent/40 transition-colors",
+                            uploading && "pointer-events-none opacity-50",
+                          )}
                         >
-                          <img
-                            src={photo.url}
-                            alt={photo.name}
-                            className="h-full w-full object-cover"
+                          <UploadIcon className="h-4 w-4" />
+                          {uploading ? "Comprimindo..." : "Galeria"}
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={handlePhotoChange}
+                            disabled={uploading}
                           />
-                          <button
-                            type="button"
-                            onClick={() => handleRemovePhoto(photo.url)}
-                            className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 tap-target"
-                          >
-                            <TrashIcon className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                        </label>
 
-                {equipment.length > 0 && (
-                  <div className="flex flex-col gap-2">
-                    <p className="text-sm font-medium">Observação por equipamento</p>
-                    {equipment.map((item) => (
-                      <div key={item.id} className="flex flex-col gap-1">
-                        <p className="text-xs text-muted-foreground">
-                          {EQUIPMENT_TYPE_LABELS[item.type]} · {item.location}
-                        </p>
-                        <Textarea
-                          rows={2}
-                          placeholder="Observação sobre este equipamento (opcional)"
-                          className="text-base sm:text-sm"
-                          value={equipmentNotes[item.id] ?? ""}
-                          onChange={(event) =>
-                            setEquipmentNotes((prev) => ({
-                              ...prev,
-                              [item.id]: event.target.value,
-                            }))
-                          }
-                        />
+                        <button
+                          type="button"
+                          onClick={handleCameraCapture}
+                          disabled={uploading}
+                          className={cn(
+                            "flex h-20 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-sm text-muted-foreground hover:bg-accent/40 transition-colors",
+                            uploading && "pointer-events-none opacity-50",
+                          )}
+                        >
+                          <CameraIcon className="h-4 w-4" />
+                          Câmera
+                        </button>
                       </div>
-                    ))}
-                  </div>
-                )}
 
-                <DialogFooter className="flex-col gap-2 sm:flex-row">
-                  <Button
-                    type="submit"
-                    disabled={completeService.isPending}
-                    className="h-12 w-full text-base sm:h-10 sm:w-auto"
-                  >
-                    {completeService.isPending && <Loader2Icon className="animate-spin" />}
-                    {completeService.isPending ? "Registrando..." : "Concluir OS"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </Form>
+                      {photos.length > 0 && (
+                        <div className="grid grid-cols-3 gap-2">
+                          {photos.map((photo) => (
+                            <div
+                              key={photo.url}
+                              className="group relative aspect-square overflow-hidden rounded-md border"
+                            >
+                              <img
+                                src={photo.url}
+                                alt={photo.name}
+                                className="h-full w-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemovePhoto(photo.url)}
+                                className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 tap-target"
+                              >
+                                <TrashIcon className="h-3 w-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {equipment.length > 0 && (
+                      <div className="flex flex-col gap-2">
+                        <p className="text-sm font-medium">Observação por equipamento</p>
+                        {equipment.map((item) => (
+                          <div key={item.id} className="flex flex-col gap-1">
+                            <p className="text-xs text-muted-foreground">
+                              {EQUIPMENT_TYPE_LABELS[item.type]} · {item.location}
+                            </p>
+                            <Textarea
+                              rows={2}
+                              placeholder="Observação sobre este equipamento (opcional)"
+                              className="text-base sm:text-sm"
+                              value={equipmentNotes[item.id] ?? ""}
+                              onChange={(event) =>
+                                setEquipmentNotes((prev) => ({
+                                  ...prev,
+                                  [item.id]: event.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <DialogFooter className="flex-col gap-2 sm:flex-row">
+                      <Button
+                        type="submit"
+                        disabled={completeService.isPending}
+                        className="h-12 w-full text-base sm:h-10 sm:w-auto"
+                      >
+                        {completeService.isPending && <Loader2Icon className="animate-spin" />}
+                        {completeService.isPending ? "Registrando..." : "Concluir OS"}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </TabsContent>
+
+              <TabsContent value="preview" className="mt-4">
+                <div className="max-h-[60vh] overflow-y-auto rounded-lg border p-4">
+                  <ServiceReportPreview
+                    companyName={user?.companyName ?? "—"}
+                    companyNiche={user?.niche ?? null}
+                    service={
+                      service ?? {
+                        id: serviceId,
+                        companyId: user?.companyId ?? "",
+                        contractId: "",
+                        customerId: "",
+                        customerName: "—",
+                        customerAddress: "",
+                        customerPhone: null,
+                        serviceType: "",
+                        scheduledDate: new Date().toISOString(),
+                        employeeId: null,
+                        employeeName: null,
+                        status: "COMPLETED",
+                        equipmentIds: [],
+                        equipmentDetails: equipment,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                      }
+                    }
+                    executionNotes={watchedNotes ?? ""}
+                    durationMinutes={watchedDuration ?? undefined}
+                    equipmentNotes={equipmentNotes}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Esta é uma prévia aproximada do laudo. O PDF definitivo será gerado após o envio.
+                </p>
+              </TabsContent>
+            </Tabs>
           </>
         )}
       </DialogContent>

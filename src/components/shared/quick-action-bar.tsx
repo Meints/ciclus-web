@@ -45,7 +45,7 @@ export function QuickActionBar({ open, onOpenChange }: QuickActionBarProps) {
       label: "Nova ordem de serviço",
       description: "Criar uma OS agendada ou imediata",
       icon: PlusIcon,
-      href: "/servicos/novo",
+      href: "/servicos?quickCreate=true",
       shortcut: "N",
     },
     {
@@ -53,7 +53,7 @@ export function QuickActionBar({ open, onOpenChange }: QuickActionBarProps) {
       label: "Novo cliente",
       description: "Cadastrar um cliente",
       icon: PlusIcon,
-      href: "/clientes/novo",
+      href: "/clientes?quickCreate=true",
       shortcut: "C",
     },
     {
@@ -61,7 +61,7 @@ export function QuickActionBar({ open, onOpenChange }: QuickActionBarProps) {
       label: "Novo contrato",
       description: "Criar um contrato recorrente",
       icon: PlusIcon,
-      href: "/contratos/novo",
+      href: "/contratos?quickCreate=true",
       shortcut: "K",
     },
     {

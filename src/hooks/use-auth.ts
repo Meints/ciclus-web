@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
 import { getDefaultRouteForRole, hasRole } from "@/lib/auth";
-import type { LoginPayload, UserRole } from "@/types/auth";
+import type { LoginPayload, RegisterPayload, UserRole } from "@/types/auth";
 
 export function useCurrentUser() {
   const setUser = useAuthStore((state) => state.setUser);
@@ -35,6 +35,27 @@ export function useCurrentUser() {
   }, [query.isError, setUser, setInitialized]);
 
   return query;
+}
+
+export function useRegister() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const setUser = useAuthStore((state) => state.setUser);
+  const setInitialized = useAuthStore((state) => state.setInitialized);
+
+  return useMutation({
+    mutationFn: (payload: RegisterPayload) => authService.register(payload),
+    onSuccess: (data) => {
+      setUser(data.user);
+      setInitialized(true);
+      queryClient.setQueryData(["auth", "me"], data.user);
+      toast.success(`Bem-vindo, ${data.user.name.split(" ")[0]}!`);
+      router.push(getDefaultRouteForRole(data.user.role));
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Não foi possível criar a conta.");
+    },
+  });
 }
 
 export function useLogin() {

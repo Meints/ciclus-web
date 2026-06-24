@@ -1,14 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Columns3Icon,
   ListIcon,
   PlusIcon,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -16,22 +23,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { startOfWeek, endOfWeek } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { ServiceTable } from "@/components/services/service-table";
 import { ServiceKanban } from "@/components/services/service-kanban";
-import { useServices } from "@/hooks/use-services";
+import { ServiceForm } from "@/components/services/service-form";
+import { useServices, useCreateService } from "@/hooks/use-services";
 import { useEmployees } from "@/hooks/use-employees";
 import { useAuthStore } from "@/store/auth.store";
 import { hasRole } from "@/lib/auth";
 import { SERVICE_STATUS_LABELS } from "@/lib/labels";
 import type { Service, ServiceStatus } from "@/types/service";
+import type { ServiceFormValues } from "@/lib/validations/service";
 
 const PAGE_SIZE = 10;
 const ALL = "ALL";
 
-export default function ServicesPage() {
+export default function ServicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ quickCreate?: string; customerId?: string; contractId?: string }>;
+}) {
   const router = useRouter();
+  const params = use(searchParams);
+  const handledQuickCreate = useRef(false);
   const user = useAuthStore((state) => state.user);
   const isAdminOrOwner = hasRole(user?.role, ["OWNER", "ADMIN"]);
   const isTechnician = hasRole(user?.role, ["TECHNICIAN"]);
@@ -42,20 +58,27 @@ export default function ServicesPage() {
   const [dateFilter, setDateFilter] = useState("");
   const [page, setPage] = useState(1);
   const [view, setView] = useState<string>(isTechnician ? "list" : "kanban");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  useEffect(() => {
+    if (params.quickCreate === "true" && !handledQuickCreate.current) {
+      handledQuickCreate.current = true;
+      setShowCreateModal(true);
+      router.replace(window.location.pathname, { scroll: false });
+    }
+  }, [params.quickCreate, router]);
 
   const { data: employees } = useEmployees({ page: 1, pageSize: 100 });
   const technicians = employees?.data ?? [];
 
-  const today = new Date();
-  const sevenDaysFromNow = new Date(today);
-  sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
-
-  const dateStart = view === "kanban" && !dateFilter
-    ? today.toISOString().slice(0, 10)
-    : dateFilter || undefined;
-  const dateEnd = view === "kanban" && !dateFilter
-    ? sevenDaysFromNow.toISOString().slice(0, 10)
-    : undefined;
+  const dateStart =
+    view === "kanban" && !dateFilter
+      ? startOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().slice(0, 10)
+      : dateFilter || undefined;
+  const dateEnd =
+    view === "kanban" && !dateFilter
+      ? endOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().slice(0, 10)
+      : undefined;
 
   const { data, isLoading } = useServices({
     page,
@@ -69,11 +92,38 @@ export default function ServicesPage() {
     dateStart,
     dateEnd,
   });
+  const createService = useCreateService();
 
   const services = data?.data ?? [];
 
+  const createDefaultValues = useMemo(() =>
+    params.customerId || params.contractId
+      ? { customerId: params.customerId, contractId: params.contractId }
+      : undefined,
+    [params.customerId, params.contractId],
+  );
+
   function handleRowClick(service: Service) {
     router.push(`/servicos/${service.id}`);
+  }
+
+  function handleCreate(values: ServiceFormValues, startImmediately?: boolean) {
+    createService.mutate(
+      {
+        ...values,
+        employeeId: values.employeeId || undefined,
+      },
+      {
+        onSuccess: (service) => {
+          setShowCreateModal(false);
+          if (startImmediately) {
+            router.push(`/servicos/${service.id}?start=true`);
+          } else {
+            router.push(`/servicos/${service.id}`);
+          }
+        },
+      }
+    );
   }
 
   const filtersNode = (
@@ -120,14 +170,13 @@ export default function ServicesPage() {
         </Select>
       )}
 
-      <Input
-        type="date"
-        className="w-36"
+      <DatePicker
         value={dateFilter}
-        onChange={(event) => {
-          setDateFilter(event.target.value);
+        onChange={(value) => {
+          setDateFilter(value);
           setPage(1);
         }}
+        className="w-40"
       />
 
       <Input
@@ -153,7 +202,7 @@ export default function ServicesPage() {
         }
         actions={
           isAdminOrOwner && (
-            <Button onClick={() => router.push("/servicos/novo")}>
+            <Button onClick={() => setShowCreateModal(true)}>
               <PlusIcon />
               Nova OS
             </Button>
@@ -219,6 +268,21 @@ export default function ServicesPage() {
           }
         />
       )}
+
+      <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nova ordem de serviço</DialogTitle>
+          </DialogHeader>
+          <ServiceForm
+            defaultValues={createDefaultValues}
+            onSubmit={(values) => handleCreate(values, false)}
+            isSubmitting={createService.isPending}
+            submitLabel="Salvar OS"
+            onSubmitAndStart={(values) => handleCreate(values, true)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

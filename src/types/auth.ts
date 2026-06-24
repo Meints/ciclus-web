@@ -10,7 +10,15 @@ export interface AuthUser {
   companyId: string;
   companyName: string;
   niche: ServiceNiche | null;
+  logoUrl?: string | null;
   avatarUrl?: string | null;
+}
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  companyName: string;
 }
 
 export interface LoginPayload {

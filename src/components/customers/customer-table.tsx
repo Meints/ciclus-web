@@ -4,7 +4,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { CUSTOMER_STATUS_LABELS, CUSTOMER_STATUS_VARIANTS } from "@/lib/labels";
-import { maskDocumentPrivacy } from "@/lib/privacy-mask";
 import type { Customer } from "@/types/customer";
 
 interface CustomerTableProps {
@@ -36,7 +35,7 @@ const columns: ColumnDef<Customer>[] = [
   {
     accessorKey: "document",
     header: "CNPJ/CPF",
-    cell: ({ row }) => maskDocumentPrivacy(row.original.document, row.original.documentType),
+    cell: ({ row }) => row.original.document,
   },
   {
     accessorKey: "city",

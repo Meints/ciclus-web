@@ -17,8 +17,6 @@ export interface Contract {
   endDate: string;
   nextVisitDate: string | null;
   value: number;
-  responsibleEmployeeId: string | null;
-  responsibleEmployeeName: string | null;
   notes?: string | null;
   status: ContractStatus;
   createdAt: string;
@@ -31,7 +29,6 @@ export interface CreateContractPayload {
   startDate: string;
   endDate: string;
   value: number;
-  responsibleEmployeeId?: string;
   notes?: string;
 }
 
@@ -40,7 +37,6 @@ export type UpdateContractPayload = {
   startDate?: string;
   endDate?: string;
   value?: number;
-  responsibleEmployeeId?: string;
   notes?: string;
   customerId?: string;
   status?: ContractStatus;

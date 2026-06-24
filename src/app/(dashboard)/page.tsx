@@ -19,13 +19,14 @@ import { ServiceCalendar } from "@/components/dashboard/service-calendar";
 import {
   useDashboardSummary,
   useExpiringContracts,
+  useRecentActivity,
   useTechnicianStatus,
   useUpcomingServices,
 } from "@/hooks/use-dashboard";
 import { SERVICE_STATUS_LABELS, SERVICE_STATUS_VARIANTS, SERVICE_TYPE_LABELS } from "@/lib/labels";
 import { getServiceTypeLabel } from "@/lib/service-types";
-import { formatCompactCurrency, formatCurrency, formatDate, formatPercent } from "@/lib/utils";
-import type { ExpiringContract, TechnicianStatus, UpcomingService } from "@/types/dashboard";
+import { formatCompactCurrency, formatCurrency, formatDate, formatDateTime, formatPercent } from "@/lib/utils";
+import type { ExpiringContract, RecentActivity, TechnicianStatus, UpcomingService } from "@/types/dashboard";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function DashboardPage() {
   const { data: upcomingServices, isLoading: isServicesLoading } = useUpcomingServices();
   const { data: expiringContracts, isLoading: isContractsLoading } = useExpiringContracts();
   const { data: technicians, isLoading: isTechLoading } = useTechnicianStatus();
+  const { data: recentActivity, isLoading: isActivityLoading } = useRecentActivity();
 
   return (
     <div className="flex flex-col gap-6">
@@ -204,6 +206,32 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Atividade recente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isActivityLoading ? (
+              <div className="flex flex-col gap-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="h-10 animate-pulse rounded-md bg-muted" />
+                ))}
+              </div>
+            ) : !recentActivity || recentActivity.length === 0 ? (
+              <EmptyState
+                title="Nenhuma atividade recente"
+                description="As ações da equipe aparecerão aqui."
+              />
+            ) : (
+              <div className="flex flex-col divide-y">
+                {recentActivity.slice(0, 5).map((activity) => (
+                  <ActivityRow key={activity.id} activity={activity} />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
@@ -252,6 +280,9 @@ function UpcomingRow({ service }: { service: UpcomingService }) {
           {getServiceTypeLabel(service.serviceType)} ·{" "}
           {service.employeeName ?? "Sem técnico"} ·{" "}
           {formatDate(service.scheduledDate)}
+          {service.scheduledTime && (
+            <span> às {service.scheduledTime.slice(0, 5)}</span>
+          )}
         </p>
       </div>
       <StatusBadge
@@ -259,6 +290,20 @@ function UpcomingRow({ service }: { service: UpcomingService }) {
         variant={SERVICE_STATUS_VARIANTS[service.status]}
       />
     </Link>
+  );
+}
+
+function ActivityRow({ activity }: { activity: RecentActivity }) {
+  return (
+    <div className="flex items-center justify-between gap-3 py-2.5">
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm">{activity.description}</p>
+        <p className="text-xs text-muted-foreground">
+          {activity.userName && <span>{activity.userName} · </span>}
+          {formatDateTime(activity.createdAt)}
+        </p>
+      </div>
+    </div>
   );
 }
 

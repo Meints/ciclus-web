@@ -3,9 +3,8 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2Icon, PlayCircleIcon } from "lucide-react";
+import { ClockIcon, Loader2Icon, PlayCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
@@ -24,6 +23,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomerCombobox } from "@/components/customers/customer-combobox";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Input } from "@/components/ui/input";
 import { serviceSchema, type ServiceFormValues } from "@/lib/validations/service";
 import { CONTRACT_FREQUENCY_LABELS } from "@/lib/labels";
 import { getServiceTypes } from "@/lib/service-types";
@@ -58,7 +59,9 @@ export function ServiceForm({
       customerId: "",
       contractId: "",
       serviceType: serviceTypeOptions[0]?.value ?? "",
-      scheduledDate: new Date().toISOString().slice(0, 10),
+      scheduledDate: new Date().toLocaleDateString("sv-SE"),
+      scheduledTime: "",
+      estimatedDurationMinutes: undefined,
       employeeId: "",
       equipmentIds: [],
       ...defaultValues,
@@ -176,7 +179,49 @@ export function ServiceForm({
                 <FormItem>
                   <FormLabel>Data agendada</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <DatePicker value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="scheduledTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Horário</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <ClockIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        type="time"
+                        className="pl-9"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="estimatedDurationMinutes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Duração estimada</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="min"
+                      min={1}
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -29,7 +29,6 @@ export const contractService = {
       startDate: payload.startDate,
       endDate: payload.endDate,
       amount: payload.value,
-      employeeId: payload.responsibleEmployeeId,
       notes: payload.notes,
     });
     return data;
@@ -39,8 +38,8 @@ export const contractService = {
     const body: Record<string, unknown> = {};
     if (payload.frequency !== undefined) body.frequency = payload.frequency;
     if (payload.startDate !== undefined) body.startDate = payload.startDate;
+    if (payload.endDate !== undefined) body.endDate = payload.endDate;
     if (payload.value !== undefined) body.amount = payload.value;
-    if (payload.responsibleEmployeeId !== undefined) body.employeeId = payload.responsibleEmployeeId;
     if (payload.notes !== undefined) body.notes = payload.notes;
     if (payload.customerId !== undefined) body.customerId = payload.customerId;
     if (payload.status !== undefined) body.status = payload.status;

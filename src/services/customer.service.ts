@@ -39,14 +39,16 @@ export const customerService = {
     const body: Record<string, unknown> = {};
     if (payload.legalName !== undefined) body.name = payload.legalName;
     if (payload.tradeName !== undefined) body.fantasyName = payload.tradeName;
-    if (payload.documentType !== undefined) body.documentType = payload.documentType;
-    if (payload.document !== undefined) body.document = payload.document;
     if (payload.email !== undefined) body.email = payload.email;
     if (payload.phone !== undefined) body.phone = payload.phone;
     if (payload.address !== undefined) body.address = payload.address;
-    if (payload.status !== undefined) body.isActive = payload.status === "ACTIVE";
 
     const { data } = await api.put<Customer>(`/customers/${id}`, body);
+    return data;
+  },
+
+  async toggle(id: string): Promise<Customer> {
+    const { data } = await api.patch<Customer>(`/customers/${id}/toggle`);
     return data;
   },
 

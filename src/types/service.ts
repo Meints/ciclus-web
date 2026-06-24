@@ -1,6 +1,6 @@
 import type { Equipment } from "./equipment";
 
-export type ServiceStatus = "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+export type ServiceStatus = "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "CONFIRMED" | "NOT_FOUND" | "RESCHEDULED";
 export type ConfirmationStatus = "PENDING" | "CONFIRMED";
 
 export interface ServiceEquipmentNote {
@@ -25,6 +25,7 @@ export interface Service {
   customerPhone?: string | null;
   serviceType: string;
   scheduledDate: string;
+  scheduledTime?: string | null;
   employeeId: string | null;
   employeeName: string | null;
   status: ServiceStatus;
@@ -38,6 +39,11 @@ export interface Service {
   confirmationLink?: string | null;
   confirmationExpiresAt?: string | null;
   confirmedAt?: string | null;
+  confirmedName?: string | null;
+  confirmedDocument?: string | null;
+  confirmedDocumentType?: string | null;
+  estimatedDurationMinutes?: number | null;
+  durationMinutes?: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -47,15 +53,22 @@ export interface CreateServicePayload {
   customerId: string;
   serviceType: string;
   scheduledDate: string;
+  scheduledTime?: string;
   employeeId?: string;
+  estimatedDurationMinutes?: number;
   equipmentIds?: string[];
 }
 
-export type UpdateServicePayload = Partial<
-  Pick<CreateServicePayload, "scheduledDate" | "employeeId" | "equipmentIds">
-> & {
+export interface UpdateServicePayload {
+  contractId?: string;
+  customerId?: string;
+  serviceType?: string;
+  scheduledDate?: string;
+  scheduledTime?: string | null;
+  employeeId?: string | null;
+  equipmentIds?: string[];
   status?: ServiceStatus;
-};
+}
 
 export interface CompleteServicePayload {
   executionNotes: string;

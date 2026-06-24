@@ -47,6 +47,7 @@ const COLUMNS = [
 type ColumnId = (typeof COLUMNS)[number]["id"];
 
 function getColumnId(service: Service): ColumnId {
+  if (service.status === "CONFIRMED") return "COMPLETED";
   if (service.status === "COMPLETED" && service.confirmedAt) return "COMPLETED";
   if (service.status === "COMPLETED" && !service.confirmedAt) return "AWAITING_SIGNATURE";
   return service.status as ColumnId;
@@ -274,6 +275,7 @@ export function ServiceKanban({ services, isLoading }: ServiceKanbanProps) {
             if (!open) setCompleteServiceId(null);
           }}
           serviceId={completingService.id}
+          service={completingService}
           equipment={completingService.equipmentDetails}
           onCompleted={() => setCompleteServiceId(null)}
         />

@@ -292,3 +292,89 @@
     display: none;
   }
 }
+
+.rdp-root {
+  --rdp-accent-color: hsl(209, 70%, 35%);
+  --rdp-accent-background-color: hsl(209, 70%, 95%);
+  --rdp-day-height: 34px;
+  --rdp-day-width: 34px;
+  --rdp-day_button-height: 32px;
+  --rdp-day_button-width: 32px;
+  --rdp-nav_button-height: 28px;
+  --rdp-nav_button-width: 28px;
+  --rdp-nav-height: 34px;
+  --rdp-today-color: hsl(209, 70%, 35%);
+  --rdp-day_button-border-radius: 6px;
+  --rdp-outside-opacity: 0.4;
+}
+
+/* ── Cabeçalho do calendário ─────────────────────── */
+.rdp-root .rdp-month_caption {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding-left: 4px;
+}
+
+.rdp-root .rdp-month_caption::first-letter {
+  text-transform: uppercase;
+}
+
+.rdp-root .rdp-nav {
+  gap: 2px;
+}
+
+/* ── Dias selecionados ────────────────────────────── */
+.rdp-root .rdp-selected .rdp-day_button {
+  background-color: hsl(209, 70%, 35%);
+  color: white;
+  border-color: hsl(209, 70%, 35%);
+}
+
+.rdp-root .rdp-selected .rdp-day_button:hover {
+  background-color: hsl(209, 70%, 35%);
+  color: white;
+}
+
+/* ── Hoje ──────────────────────────────────────────── */
+.rdp-root .rdp-today:not(.rdp-outside) {
+  font-weight: 700;
+  color: hsl(209, 70%, 35%);
+}
+
+.rdp-root .rdp-selected.rdp-today .rdp-day_button {
+  color: white;
+}
+
+/* ── Navegação ─────────────────────────────────────── */
+.rdp-root .rdp-button_next,
+.rdp-root .rdp-button_previous {
+  border-radius: 6px;
+  transition: background-color 0.1s;
+}
+
+.rdp-root .rdp-button_next:hover,
+.rdp-root .rdp-button_previous:hover {
+  background-color: hsl(48, 22%, 95%);
+}
+
+.rdp-root .rdp-chevron {
+  fill: hsl(209, 70%, 35%);
+}
+
+/* ── Dias da semana ────────────────────────────────── */
+.rdp-root .rdp-weekday {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* ── Botão individual do dia ───────────────────────── */
+.rdp-root .rdp-day_button {
+  font-size: 0.8125rem;
+  transition: background-color 0.1s;
+}
+
+.rdp-root .rdp-day_button:hover {
+  background-color: hsl(48, 22%, 95%);
+}

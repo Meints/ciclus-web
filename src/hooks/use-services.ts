@@ -4,10 +4,12 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { toast } from "sonner";
 import { serviceService } from "@/services/service.service";
 import type { PaginationParams } from "@/types/api";
+import type { Service } from "@/types/service";
 import type {
   CompleteServicePayload,
   CreateServicePayload,
   ServiceFilters,
+  UpdateServicePayload,
 } from "@/types/service";
 
 const SERVICES_KEY = "services";
@@ -39,6 +41,22 @@ export function useCreateService() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "Não foi possível criar a ordem de serviço.");
+    },
+  });
+}
+
+export function useUpdateService(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: UpdateServicePayload) => serviceService.update(id, payload),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [SERVICES_KEY] });
+      queryClient.setQueryData([SERVICES_KEY, id], data);
+      toast.success("Ordem de serviço atualizada com sucesso.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Não foi possível atualizar a ordem de serviço.");
     },
   });
 }
@@ -123,7 +141,7 @@ export function useGenerateServicePdf(serviceId: string) {
     mutationFn: () => serviceService.generatePdf(serviceId),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [SERVICES_KEY] });
-      queryClient.setQueryData([SERVICES_KEY, serviceId], (old: any) =>
+      queryClient.setQueryData([SERVICES_KEY, serviceId], (old: Service | undefined) =>
         old ? { ...old, reportPdfUrl: data.reportPdfUrl } : old
       );
       toast.success("PDF gerado com sucesso.");

@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   title: "Ciclus | Gestão de Serviços Recorrentes",
   description:
     "Plataforma de gestão de clientes, contratos e ordens de serviço para empresas de manutenção e serviços recorrentes.",
+  icons: { icon: "/favicon.svg" },
 };
 
 const THEME_SCRIPT = `

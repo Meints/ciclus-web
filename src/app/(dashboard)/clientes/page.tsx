@@ -1,22 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PlusIcon, SearchIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/shared/page-header";
 import { CustomerTable } from "@/components/customers/customer-table";
-import { useCustomers } from "@/hooks/use-customers";
+import { CustomerForm } from "@/components/customers/customer-form";
+import { useCustomers, useCreateCustomer } from "@/hooks/use-customers";
 import type { Customer } from "@/types/customer";
+import type { CustomerFormValues } from "@/lib/validations/customer";
 
 const PAGE_SIZE = 10;
 
-export default function CustomersPage() {
+export default function CustomersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ quickCreate?: string }>;
+}) {
   const router = useRouter();
+  const params = use(searchParams);
+  const handledQuickCreate = useRef(false);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  useEffect(() => {
+    if (params.quickCreate === "true" && !handledQuickCreate.current) {
+      handledQuickCreate.current = true;
+      setShowCreateModal(true);
+      router.replace(window.location.pathname, { scroll: false });
+    }
+  }, [params.quickCreate, router]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -27,9 +50,30 @@ export default function CustomersPage() {
   }, [searchInput]);
 
   const { data, isLoading } = useCustomers({ page, pageSize: PAGE_SIZE, search });
+  const createCustomer = useCreateCustomer();
 
   function handleRowClick(customer: Customer) {
     router.push(`/clientes/${customer.id}`);
+  }
+
+  function handleCreate(values: CustomerFormValues) {
+    createCustomer.mutate(
+      {
+        ...values,
+        tradeName: values.tradeName || undefined,
+        email: values.email || undefined,
+        address: {
+          ...values.address,
+          complement: values.address.complement || undefined,
+        },
+      },
+      {
+        onSuccess: (customer) => {
+          setShowCreateModal(false);
+          router.push(`/clientes/${customer.id}`);
+        },
+      }
+    );
   }
 
   return (
@@ -38,7 +82,7 @@ export default function CustomersPage() {
         title="Clientes"
         description="Gerencie os clientes e seus contratos de serviço"
         actions={
-          <Button onClick={() => router.push("/clientes/novo")}>
+          <Button onClick={() => setShowCreateModal(true)}>
             <PlusIcon />
             Novo cliente
           </Button>
@@ -71,6 +115,18 @@ export default function CustomersPage() {
             : undefined
         }
       />
+
+      <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Novo cliente</DialogTitle>
+          </DialogHeader>
+          <CustomerForm
+            onSubmit={handleCreate}
+            isSubmitting={createCustomer.isPending}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

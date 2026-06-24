@@ -1,9 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2Icon, RecycleIcon } from "lucide-react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,22 +15,24 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { loginSchema, type LoginFormValues } from "@/lib/validations/auth";
-import { useLogin } from "@/hooks/use-auth";
+import { registerSchema, type RegisterFormValues } from "@/lib/validations/auth";
+import { useRegister } from "@/hooks/use-auth";
 
-export default function LoginPage() {
-  const loginMutation = useLogin();
+export default function RegisterPage() {
+  const registerMutation = useRegister();
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      companyName: "",
     },
   });
 
-  function onSubmit(values: LoginFormValues) {
-    loginMutation.mutate(values);
+  function onSubmit(values: RegisterFormValues) {
+    registerMutation.mutate(values);
   }
 
   return (
@@ -41,20 +43,48 @@ export default function LoginPage() {
         </div>
         <h1 className="text-xl font-semibold">Ciclus</h1>
         <p className="text-sm text-muted-foreground">
-          Gestão de serviços recorrentes para sua empresa
+          Crie sua conta para começar
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Entrar</CardTitle>
+          <CardTitle>Criar conta</CardTitle>
           <CardDescription>
-            Acesse com o e-mail e senha cadastrados pela sua empresa.
+            Preencha os dados abaixo para cadastrar sua empresa.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+              <FormField
+                control={form.control}
+                name="companyName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome da empresa</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Minha empresa" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Seu nome</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Seu nome" autoComplete="name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="email"
@@ -84,7 +114,7 @@ export default function LoginPage() {
                       <Input
                         type="password"
                         placeholder="••••••••"
-                        autoComplete="current-password"
+                        autoComplete="new-password"
                         {...field}
                       />
                     </FormControl>
@@ -93,9 +123,9 @@ export default function LoginPage() {
                 )}
               />
 
-              <Button type="submit" disabled={loginMutation.isPending} className="mt-2">
-                {loginMutation.isPending && <Loader2Icon className="animate-spin" />}
-                Entrar
+              <Button type="submit" disabled={registerMutation.isPending} className="mt-2">
+                {registerMutation.isPending && <Loader2Icon className="animate-spin" />}
+                Criar conta
               </Button>
             </form>
           </Form>
@@ -103,9 +133,9 @@ export default function LoginPage() {
       </Card>
 
       <p className="text-center text-xs text-muted-foreground">
-        Não tem uma conta?{" "}
-        <Link href="/register" className="text-primary hover:underline">
-          Cadastre-se
+        Já tem uma conta?{" "}
+        <Link href="/login" className="text-primary hover:underline">
+          Entrar
         </Link>
       </p>
     </div>

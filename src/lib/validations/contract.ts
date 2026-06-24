@@ -10,7 +10,6 @@ export const contractSchema = z.object({
   value: z.coerce
     .number({ invalid_type_error: "Informe um valor válido" })
     .positive("O valor deve ser maior que zero"),
-  responsibleEmployeeId: z.string().optional(),
   notes: z.string().optional(),
 });
 

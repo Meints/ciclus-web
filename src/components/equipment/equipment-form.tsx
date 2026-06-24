@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
 import { equipmentSchema, type EquipmentFormValues } from "@/lib/validations/equipment";
 import { EQUIPMENT_TYPE_LABELS } from "@/lib/labels";
 
@@ -151,19 +152,19 @@ export function EquipmentForm({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="installationDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data de instalação</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="installationDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Data de instalação</FormLabel>
+                  <FormControl>
+                    <DatePicker value={field.value} onChange={field.onChange} placeholder="Selecione a data" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
         </div>
 
         <FormField

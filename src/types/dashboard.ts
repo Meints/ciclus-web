@@ -23,6 +23,8 @@ export interface UpcomingService {
   employeeName: string | null;
   employeeId: string | null;
   scheduledDate: string;
+  scheduledTime?: string | null;
+  estimatedDurationMinutes?: number | null;
   serviceType: string;
   status: ServiceStatus;
 }
@@ -52,11 +54,23 @@ export interface MonthlyRevenue {
   services: number;
 }
 
+export interface RecentActivity {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  userName: string | null;
+  createdAt: string;
+  description: string;
+}
+
 export interface DashboardCalendarService {
   id: string;
   customerName: string;
   serviceType: string;
   scheduledDate: string;
+  scheduledTime?: string | null;
+  estimatedDurationMinutes?: number | null;
   employeeName: string | null;
   status: ServiceStatus;
 }

@@ -37,9 +37,7 @@ export interface CreateCustomerPayload {
   address: CustomerAddress;
 }
 
-export type UpdateCustomerPayload = Partial<CreateCustomerPayload> & {
-  status?: CustomerStatus;
-};
+export type UpdateCustomerPayload = Partial<CreateCustomerPayload>;
 
 export interface CustomerFilters {
   search?: string;

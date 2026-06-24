@@ -49,6 +49,9 @@ export const SERVICE_STATUS_LABELS: Record<ServiceStatus, string> = {
   IN_PROGRESS: "Em andamento",
   COMPLETED: "Concluído",
   CANCELLED: "Cancelado",
+  CONFIRMED: "Confirmado",
+  NOT_FOUND: "Não encontrado",
+  RESCHEDULED: "Reagendado",
 };
 
 export const CUSTOMER_STATUS_LABELS: Record<CustomerStatus, string> = {
@@ -75,6 +78,9 @@ export const SERVICE_STATUS_VARIANTS: Record<ServiceStatus, BadgeVariant> = {
   IN_PROGRESS: "warning",
   COMPLETED: "success",
   CANCELLED: "secondary",
+  CONFIRMED: "success",
+  NOT_FOUND: "destructive",
+  RESCHEDULED: "warning",
 };
 
 export const CUSTOMER_STATUS_VARIANTS: Record<CustomerStatus, BadgeVariant> = {

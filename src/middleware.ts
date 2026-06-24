@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { AUTH_COOKIE_NAME } from "@/lib/auth";
 import type { UserRole } from "@/types/auth";
 
-const PUBLIC_ROUTES = ["/login"];
+const PUBLIC_ROUTES = ["/login", "/register"];
 const ALWAYS_PUBLIC_ROUTES = ["/confirmar"];
 
 const EXACT_ROUTE_ROLES: Record<string, UserRole[]> = {
