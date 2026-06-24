@@ -58,6 +58,27 @@
   --info-50: #e6f1fb;
   --info-500: #378add;
 
+  /* FullCalendar — light mode */
+  --fc-border-color: var(--gray-200);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: var(--gray-50);
+  --fc-neutral-text-color: var(--gray-700);
+  --fc-button-text-color: var(--gray-700);
+  --fc-button-bg-color: var(--gray-50);
+  --fc-button-border-color: var(--gray-200);
+  --fc-button-hover-bg-color: var(--brand-50);
+  --fc-button-hover-border-color: var(--brand-200);
+  --fc-button-active-bg-color: var(--brand-50);
+  --fc-button-active-border-color: var(--brand-300);
+  --fc-event-bg-color: transparent;
+  --fc-event-border-color: transparent;
+  --fc-event-text-color: var(--gray-900);
+  --fc-today-bg-color: var(--brand-50);
+  --fc-list-event-hover-bg-color: var(--gray-50);
+  --fc-highlight-color: var(--brand-50);
+  --fc-more-link-bg-color: var(--gray-100);
+  --fc-more-link-text-color: var(--gray-600);
+
   /* Shin/Radix tokens */
   --background: 0 0% 100%;
   --foreground: 0 1% 13%;
@@ -161,8 +182,8 @@
   --fc-button-hover-border-color: hsl(209, 35%, 35%);
   --fc-button-active-bg-color: hsl(209, 35%, 25%);
   --fc-button-active-border-color: hsl(209, 50%, 45%);
-  --fc-event-bg-color: hsl(209, 40%, 35%);
-  --fc-event-border-color: hsl(209, 40%, 35%);
+  --fc-event-bg-color: transparent;
+  --fc-event-border-color: transparent;
   --fc-event-text-color: hsl(0, 0%, 97%);
   --fc-today-bg-color: hsl(209, 30%, 14%);
   --fc-list-event-hover-bg-color: hsl(0, 0%, 16%);
@@ -377,4 +398,97 @@
 
 .rdp-root .rdp-day_button:hover {
   background-color: hsl(48, 22%, 95%);
+}
+
+/* ── Agenda de serviços (FullCalendar) ───────────────── */
+.ciclus-calendar .fc {
+  font-family: inherit;
+}
+
+.ciclus-calendar .fc-theme-standard td,
+.ciclus-calendar .fc-theme-standard th {
+  border-color: var(--fc-border-color);
+}
+
+.ciclus-calendar .fc-scrollgrid {
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.ciclus-calendar .fc-daygrid-day-frame {
+  padding: 2px;
+}
+
+.ciclus-calendar .fc-daygrid-day-number {
+  padding: 6px 8px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 999px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.ciclus-calendar .fc-day-today .fc-daygrid-day-number {
+  color: var(--brand-600);
+  font-weight: 700;
+}
+
+.ciclus-calendar .fc-daygrid-day.is-selected .fc-daygrid-day-number {
+  background-color: var(--brand-600);
+  color: white;
+}
+
+.ciclus-calendar .fc-daygrid-day.has-service .fc-daygrid-day-number::after {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-left: 4px;
+  border-radius: 999px;
+  background-color: var(--brand-400);
+  vertical-align: middle;
+}
+
+.ciclus-calendar .fc-daygrid-day.has-service.is-selected .fc-daygrid-day-number::after {
+  background-color: white;
+}
+
+.ciclus-calendar .fc-event {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.ciclus-calendar .fc-event:hover {
+  transform: translateY(-1px);
+}
+
+.ciclus-calendar .fc-daygrid-event-harness {
+  margin-bottom: 2px;
+}
+
+.ciclus-calendar .fc-more-link {
+  font-weight: 500;
+  border-radius: 999px;
+}
+
+.ciclus-calendar .fc-list-day-cushion {
+  background-color: var(--gray-50);
+  font-weight: 600;
+}
+
+.ciclus-calendar .fc-list-event:hover td {
+  background-color: var(--fc-list-event-hover-bg-color);
+}
+
+.ciclus-calendar .fc-timegrid-slot-label {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.ciclus-calendar .fc-col-header-cell-cushion {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: 0.7;
 }

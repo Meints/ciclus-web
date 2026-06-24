@@ -29,6 +29,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { ServiceCompleteDialog } from "@/components/services/service-complete-dialog";
 import { ServiceForm } from "@/components/services/service-form";
 import { ConfirmationLinkPanel } from "@/components/services/confirmation-link-panel";
+import { ServiceHistory } from "@/components/services/service-history";
 import { useCancelService, useGenerateServicePdf, useResendConfirmation, useService, useStartService, useUpdateService } from "@/hooks/use-services";
 import { useAuthStore } from "@/store/auth.store";
 import { hasRole } from "@/lib/auth";
@@ -383,6 +384,9 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
           </CardContent>
         </Card>
       )}
+
+      {/* History card */}
+      <ServiceHistory serviceId={service.id} />
 
       {/* Edit dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>

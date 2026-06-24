@@ -2,19 +2,17 @@ import type { ContractFrequency, ContractStatus, ServiceType } from "@/types/con
 import type { ServiceStatus } from "@/types/service";
 import type { CustomerStatus } from "@/types/customer";
 import type { EmployeeStatus } from "@/types/employee";
-import type { EquipmentStatus, EquipmentType } from "@/types/equipment";
+import type { EquipmentStatus } from "@/types/equipment";
+import { EQUIPMENT_TYPES_BY_NICHE } from "@/lib/equipment-types";
 
-export const EQUIPMENT_TYPE_LABELS: Record<EquipmentType, string> = {
-  AC_SPLIT: "Ar-condicionado Split",
-  AC_CASSETTE: "Ar-condicionado Cassete",
-  AC_WINDOW: "Ar-condicionado Janela",
-  CHILLER: "Chiller",
-  FAN_COIL: "Fan Coil",
-  VRF_VRV: "VRF/VRV",
-  EXHAUST_FAN: "Exaustor",
-  AIR_CURTAIN: "Cortina de Ar",
-  OTHER: "Outro",
-};
+export const EQUIPMENT_TYPE_LABELS: Record<string, string> = Object.values(
+  EQUIPMENT_TYPES_BY_NICHE
+).reduce<Record<string, string>>((labels, options) => {
+  for (const option of options) {
+    labels[option.value] = option.label;
+  }
+  return labels;
+}, {});
 
 export const EQUIPMENT_STATUS_LABELS: Record<EquipmentStatus, string> = {
   ACTIVE: "Ativo",

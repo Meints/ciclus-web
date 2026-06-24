@@ -5,6 +5,7 @@ import type {
   CreateServicePayload,
   Service,
   ServiceFilters,
+  ServiceHistoryEntry,
   UpdateServicePayload,
 } from "@/types/service";
 
@@ -20,6 +21,11 @@ export const serviceService = {
 
   async getById(id: string): Promise<Service> {
     const { data } = await api.get<Service>(`/services/${id}`);
+    return data;
+  },
+
+  async getHistory(id: string): Promise<ServiceHistoryEntry[]> {
+    const { data } = await api.get<ServiceHistoryEntry[]>(`/services/${id}/history`);
     return data;
   },
 

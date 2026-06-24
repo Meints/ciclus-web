@@ -1,13 +1,4 @@
-export type EquipmentType =
-  | "AC_SPLIT"
-  | "AC_CASSETTE"
-  | "AC_WINDOW"
-  | "CHILLER"
-  | "FAN_COIL"
-  | "VRF_VRV"
-  | "EXHAUST_FAN"
-  | "AIR_CURTAIN"
-  | "OTHER";
+export type EquipmentType = string;
 
 export type EquipmentStatus = "ACTIVE" | "INACTIVE";
 

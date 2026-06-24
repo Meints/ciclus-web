@@ -30,6 +30,14 @@ export function useService(id: string | undefined) {
   });
 }
 
+export function useServiceHistory(id: string | undefined) {
+  return useQuery({
+    queryKey: [SERVICES_KEY, id, "history"],
+    queryFn: () => serviceService.getHistory(id as string),
+    enabled: Boolean(id),
+  });
+}
+
 export function useCreateService() {
   const queryClient = useQueryClient();
 

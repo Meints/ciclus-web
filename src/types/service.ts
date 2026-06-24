@@ -76,6 +76,15 @@ export interface CompleteServicePayload {
   equipmentNotes?: ServiceEquipmentNote[];
 }
 
+export interface ServiceHistoryEntry {
+  id: string;
+  action: string;
+  oldData: Record<string, unknown> | null;
+  newData: Record<string, unknown> | null;
+  userName: string | null;
+  createdAt: string;
+}
+
 export interface ServiceFilters {
   search?: string;
   status?: ServiceStatus;

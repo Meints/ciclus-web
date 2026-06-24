@@ -107,7 +107,7 @@ export default function ServicesPage({
     router.push(`/servicos/${service.id}`);
   }
 
-  function handleCreate(values: ServiceFormValues, startImmediately?: boolean) {
+  function handleCreate(values: ServiceFormValues) {
     createService.mutate(
       {
         ...values,
@@ -116,11 +116,7 @@ export default function ServicesPage({
       {
         onSuccess: (service) => {
           setShowCreateModal(false);
-          if (startImmediately) {
-            router.push(`/servicos/${service.id}?start=true`);
-          } else {
-            router.push(`/servicos/${service.id}`);
-          }
+          router.push(`/servicos/${service.id}`);
         },
       }
     );
@@ -276,10 +272,9 @@ export default function ServicesPage({
           </DialogHeader>
           <ServiceForm
             defaultValues={createDefaultValues}
-            onSubmit={(values) => handleCreate(values, false)}
+            onSubmit={handleCreate}
             isSubmitting={createService.isPending}
             submitLabel="Salvar OS"
-            onSubmitAndStart={(values) => handleCreate(values, true)}
           />
         </DialogContent>
       </Dialog>

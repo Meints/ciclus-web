@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ClockIcon, Loader2Icon, PlayCircleIcon } from "lucide-react";
+import { ClockIcon, Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -39,7 +39,6 @@ interface ServiceFormProps {
   onSubmit: (values: ServiceFormValues) => void;
   isSubmitting?: boolean;
   submitLabel?: string;
-  onSubmitAndStart?: (values: ServiceFormValues) => void;
 }
 
 export function ServiceForm({
@@ -48,7 +47,6 @@ export function ServiceForm({
   onSubmit,
   isSubmitting = false,
   submitLabel = "Criar OS",
-  onSubmitAndStart,
 }: ServiceFormProps) {
   const niche = useAuthStore((state) => state.user?.niche) ?? "GENERAL";
   const serviceTypeOptions = getServiceTypes(niche);
@@ -298,17 +296,6 @@ export function ServiceForm({
         </Card>
 
         <div className="flex justify-end gap-2">
-          {onSubmitAndStart && (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isSubmitting}
-              onClick={form.handleSubmit(onSubmitAndStart)}
-            >
-              <PlayCircleIcon className="h-4 w-4" />
-              Criar e iniciar
-            </Button>
-          )}
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2Icon className="animate-spin" />}
             {submitLabel}

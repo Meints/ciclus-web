@@ -23,7 +23,8 @@ import {
 } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { equipmentSchema, type EquipmentFormValues } from "@/lib/validations/equipment";
-import { EQUIPMENT_TYPE_LABELS } from "@/lib/labels";
+import { getEquipmentTypes } from "@/lib/equipment-types";
+import { useAuthStore } from "@/store/auth.store";
 
 interface EquipmentFormProps {
   defaultValues?: Partial<EquipmentFormValues>;
@@ -38,10 +39,13 @@ export function EquipmentForm({
   isSubmitting = false,
   submitLabel = "Salvar equipamento",
 }: EquipmentFormProps) {
+  const niche = useAuthStore((state) => state.user?.niche) ?? "GENERAL";
+  const equipmentTypeOptions = getEquipmentTypes(niche);
+
   const form = useForm<EquipmentFormValues>({
     resolver: zodResolver(equipmentSchema),
     defaultValues: {
-      type: "AC_SPLIT",
+      type: equipmentTypeOptions[0]?.value ?? "",
       brand: "",
       model: "",
       capacity: "",
@@ -69,9 +73,9 @@ export function EquipmentForm({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {Object.entries(EQUIPMENT_TYPE_LABELS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
+                  {equipmentTypeOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
