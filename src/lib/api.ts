@@ -41,7 +41,10 @@ api.interceptors.response.use(
     }
 
     const message =
-      error.response?.data?.message ?? error.message ?? "Erro inesperado na requisição";
+      error.response?.data?.error?.message ??
+      error.response?.data?.message ??
+      error.message ??
+      "Erro inesperado na requisição";
 
     return Promise.reject(new Error(message));
   }

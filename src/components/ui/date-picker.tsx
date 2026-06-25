@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon, XIcon } from "lucide-react";
@@ -43,7 +43,7 @@ export function DatePicker({
     setOpen(false);
   }
 
-  function handleClear(e: React.MouseEvent) {
+  function handleClear(e: React.MouseEvent | React.KeyboardEvent) {
     e.stopPropagation();
     onChange?.("");
     setOpen(false);
@@ -74,7 +74,7 @@ export function DatePicker({
               role="button"
               tabIndex={0}
               onClick={handleClear}
-              onKeyDown={(e) => e.key === "Enter" && handleClear(e as any)}
+              onKeyDown={(e) => e.key === "Enter" && handleClear(e)}
               className="ml-auto flex size-4 cursor-pointer items-center justify-center rounded-sm opacity-60 transition-opacity hover:opacity-100"
             >
               <XIcon className="size-3.5" />

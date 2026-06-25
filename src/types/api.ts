@@ -16,9 +16,13 @@ export interface PaginatedResponse<T> {
 }
 
 export interface ApiErrorBody {
-  statusCode: number;
-  error: string;
-  message: string;
+  statusCode?: number;
+  message?: string;
+  error?: {
+    code: string;
+    message: string;
+    details?: unknown;
+  };
 }
 
 export interface PaginationParams {

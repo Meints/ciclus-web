@@ -31,7 +31,7 @@ export function useConfirmationSummary(token: string) {
         return { status: "not_found" as const };
       } catch (err) {
         const axiosErr = err as AxiosError<ApiErrorBody>;
-        const errorCode = axiosErr.response?.data?.error;
+        const errorCode = axiosErr.response?.data?.error?.code;
         if (errorCode === "EXPIRED" || axiosErr.response?.status === 410) {
           return { status: "expired" as const };
         }
