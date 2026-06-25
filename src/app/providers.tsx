@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { useThemeStore } from "@/store/theme.store";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 function ThemeInitializer() {
   const theme = useThemeStore((state) => state.theme);
@@ -32,10 +33,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeInitializer />
-      {children}
-      <Toaster richColors position="top-right" />
-      <ReactQueryDevtools initialIsOpen={false} />
+      <TooltipProvider>
+        <ThemeInitializer />
+        {children}
+        <Toaster richColors position="top-right" />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

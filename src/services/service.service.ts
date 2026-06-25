@@ -86,4 +86,19 @@ export const serviceService = {
     const { data } = await api.patch<Service>(`/services/${id}/reopen`);
     return data;
   },
+
+  async togglePaid(id: string): Promise<Service> {
+    const { data } = await api.patch<Service>(`/services/${id}/toggle-paid`);
+    return data;
+  },
+
+  async updateChecklist(
+    id: string,
+    checklistData: Record<string, unknown>
+  ): Promise<Service> {
+    const { data } = await api.patch<Service>(`/services/${id}/checklist`, {
+      checklistData,
+    });
+    return data;
+  },
 };

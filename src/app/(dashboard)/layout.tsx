@@ -8,6 +8,7 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { QuickActionBar } from "@/components/shared/quick-action-bar";
 import { ConnectivityIndicator } from "@/components/shared/connectivity-indicator";
+import { OnboardingWizard } from "@/components/shared/onboarding-wizard";
 import { useRequireAuth } from "@/hooks/use-auth";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthorized } = useRequireAuth();
@@ -45,6 +46,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
       <ConnectivityIndicator />
       <QuickActionBar open={quickActionOpen} onOpenChange={setQuickActionOpen} />
+      <OnboardingWizard />
     </div>
   );
 }

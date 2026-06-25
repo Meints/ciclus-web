@@ -1,20 +1,36 @@
 "use client";
 
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { type ReactNode } from "react";
 
 interface TooltipProps {
   content: string;
   children: ReactNode;
+  side?: "top" | "bottom" | "left" | "right";
 }
 
-export function Tooltip({ content, children }: TooltipProps) {
+export function Tooltip({ content, children, side = "top" }: TooltipProps) {
   return (
-    <div className="group/tooltip relative inline-flex">
+    <TooltipPrimitive.Root delayDuration={300}>
+      <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+      <TooltipPrimitive.Portal>
+        <TooltipPrimitive.Content
+          side={side}
+          sideOffset={6}
+          className="z-50 rounded-md bg-foreground px-2.5 py-1 text-xs text-background shadow-sm animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
+        >
+          {content}
+          <TooltipPrimitive.Arrow className="fill-foreground" />
+        </TooltipPrimitive.Content>
+      </TooltipPrimitive.Portal>
+    </TooltipPrimitive.Root>
+  );
+}
+
+export function TooltipProvider({ children }: { children: ReactNode }) {
+  return (
+    <TooltipPrimitive.Provider delayDuration={300}>
       {children}
-      <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background opacity-0 shadow-sm transition-opacity group-hover/tooltip:opacity-100">
-        {content}
-        <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-foreground" />
-      </div>
-    </div>
+    </TooltipPrimitive.Provider>
   );
 }

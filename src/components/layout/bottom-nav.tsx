@@ -35,7 +35,7 @@ export function BottomNav() {
   const items = NAV_ITEMS.filter((item) => hasRole(user?.role, item.roles));
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t bg-white px-2 pb-safe md:hidden dark:border-border dark:bg-background">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-border bg-card px-2 pb-safe md:hidden">
       {items.map((item) => {
         const Icon = item.icon;
         const isActive =

@@ -1,6 +1,6 @@
 import type { ServiceNiche } from "@/lib/service-types";
 
-export type UserRole = "OWNER" | "ADMIN" | "TECHNICIAN";
+export type UserRole = "OWNER" | "ADMIN" | "TECHNICIAN" | "SUPERADMIN";
 
 export interface AuthUser {
   id: string;

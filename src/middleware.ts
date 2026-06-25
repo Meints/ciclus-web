@@ -10,6 +10,7 @@ const EXACT_ROUTE_ROLES: Record<string, UserRole[]> = {
 };
 
 const PREFIX_ROUTE_ROLES: { prefix: string; roles: UserRole[] }[] = [
+  { prefix: "/admin", roles: ["SUPERADMIN"] },
   { prefix: "/configuracoes", roles: ["OWNER"] },
   { prefix: "/clientes", roles: ["OWNER", "ADMIN"] },
   { prefix: "/contratos", roles: ["OWNER", "ADMIN"] },
@@ -36,7 +37,9 @@ function decodeJwtPayload(token: string): JwtPayload | null {
 }
 
 function getDefaultRouteForRole(role: UserRole): string {
-  return role === "TECHNICIAN" ? "/servicos" : "/";
+  if (role === "SUPERADMIN") return "/admin";
+  if (role === "TECHNICIAN") return "/servicos";
+  return "/";
 }
 
 function getRequiredRoles(pathname: string): UserRole[] | null {

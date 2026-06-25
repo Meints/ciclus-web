@@ -2,7 +2,7 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, UsersIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -80,6 +80,19 @@ export default function EmployeesPage({
           </Button>
         }
       />
+
+      {/* Summary bar */}
+      {data && (
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-3">
+          <UsersIcon className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{data.meta.total}</span> colaborador{data.meta.total !== 1 ? "es" : ""} cadastrado{data.meta.total !== 1 ? "s" : ""}
+          </span>
+          <span className="ml-auto text-xs text-success-600 font-medium">
+            {data.data.filter((e) => e.status === "ACTIVE").length} ativos
+          </span>
+        </div>
+      )}
 
       <EmployeeTable
         data={data?.data ?? []}

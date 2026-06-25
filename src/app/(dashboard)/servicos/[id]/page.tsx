@@ -30,9 +30,10 @@ import { ServiceCompleteDialog } from "@/components/services/service-complete-di
 import { ServiceForm } from "@/components/services/service-form";
 import { ConfirmationLinkPanel } from "@/components/services/confirmation-link-panel";
 import { ServiceHistory } from "@/components/services/service-history";
-import { useCancelService, useGenerateServicePdf, useResendConfirmation, useService, useStartService, useUpdateService } from "@/hooks/use-services";
+import { useCancelService, useGenerateServicePdf, useResendConfirmation, useService, useStartService, useToggleServicePaid, useUpdateService } from "@/hooks/use-services";
 import { useAuthStore } from "@/store/auth.store";
 import { hasRole } from "@/lib/auth";
+import { nicheHasEquipment } from "@/lib/equipment-types";
 import {
   EQUIPMENT_TYPE_LABELS,
   SERVICE_STATUS_LABELS,
@@ -56,6 +57,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
   const resendConfirmation = useResendConfirmation(id);
   const generatePdf = useGenerateServicePdf(id);
   const updateService = useUpdateService(id);
+  const togglePaid = useToggleServicePaid(id);
 
   if (isLoading || !service) {
     return (
@@ -66,6 +68,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
   }
 
   const isAdminOrOwner = hasRole(user?.role, ["OWNER", "ADMIN"]);
+  const showEquipment = nicheHasEquipment(user?.niche);
   const canEdit = service.status === "SCHEDULED" && isAdminOrOwner;
   const canStartExecution = service.status === "SCHEDULED";
   const canRegisterExecution = service.status === "IN_PROGRESS";
@@ -174,7 +177,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                 href={`https://www.google.com/maps/search/${encodeURIComponent(service.customerAddress)}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-1 font-medium hover:text-primary transition-colors"
+                className="inline-flex w-fit items-center gap-1 font-medium hover:text-primary transition-colors cursor-pointer"
               >
                 <MapPinIcon className="h-3 w-3 shrink-0 text-muted-foreground" />
                 {service.customerAddress}
@@ -220,7 +223,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
       </Card>
 
       {/* Equipment card */}
-      {(!service.equipmentDetails || service.equipmentDetails.length > 0) && (
+      {showEquipment && (!service.equipmentDetails || service.equipmentDetails.length > 0) && (
         <Card>
           <CardHeader>
             <CardTitle>
@@ -291,6 +294,37 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               )}
             </div>
+
+            {["COMPLETED", "CONFIRMED"].includes(service.status) && (
+              <div className="flex items-center justify-between gap-4 rounded-md border border-border bg-muted/20 p-3">
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-muted-foreground">Pagamento</p>
+                  {service.isPaid ? (
+                    <StatusBadge label="Pago" variant="success" />
+                  ) : (
+                    <StatusBadge label="Pendente pagamento" variant="warning" />
+                  )}
+                </div>
+                {isAdminOrOwner && (
+                  <Button
+                    type="button"
+                    variant={service.isPaid ? "outline" : "default"}
+                    size="sm"
+                    onClick={() => togglePaid.mutate()}
+                    disabled={togglePaid.isPending}
+                  >
+                    {togglePaid.isPending ? (
+                      <Loader2Icon className="animate-spin" />
+                    ) : service.isPaid ? (
+                      <XCircleIcon />
+                    ) : (
+                      <CheckCircle2Icon />
+                    )}
+                    {service.isPaid ? "Marcar como pendente" : "Marcar como pago"}
+                  </Button>
+                )}
+              </div>
+            )}
 
             {service.execution.notes && (
               <div>

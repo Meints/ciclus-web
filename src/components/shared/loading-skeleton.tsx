@@ -28,7 +28,7 @@ export function LoadingSkeleton({ rows = 5, columns = 4 }: LoadingSkeletonProps)
 
 export function CardSkeleton() {
   return (
-    <div className="rounded-lg border-[0.5px] border-ciclus-gray-100 px-5 py-4">
+    <div className="rounded-lg border border-border bg-card px-5 py-4">
       <Skeleton className="mb-3 h-10 w-10 rounded-lg" />
       <Skeleton className="mb-2 h-3 w-24" />
       <Skeleton className="h-7 w-16" />

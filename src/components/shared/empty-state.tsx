@@ -11,10 +11,10 @@ interface EmptyStateProps {
 export function EmptyState({ title, description, icon: Icon = InboxIcon, action }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-      <Icon className="h-12 w-12 text-ciclus-gray-100" strokeWidth={1.5} />
+      <Icon className="h-10 w-10 text-gray-200" strokeWidth={1.5} />
       <div className="flex flex-col gap-1">
-        <p className="text-[15px] text-ciclus-gray-600">{title}</p>
-        {description && <p className="text-[13px] text-ciclus-gray-400">{description}</p>}
+        <p className="text-sm font-medium text-gray-600">{title}</p>
+        {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
       {action}
     </div>

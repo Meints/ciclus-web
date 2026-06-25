@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
@@ -112,17 +112,37 @@ export function useChangePassword() {
   });
 }
 
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (email: string) => authService.forgotPassword(email),
+    onError: (error: Error) => {
+      toast.error(error.message || "Não foi possível enviar o e-mail de recuperação.");
+    },
+  });
+}
+
+export function useResetPassword() {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: ({ token, password }: { token: string; password: string }) =>
+      authService.resetPassword(token, password),
+    onSuccess: () => {
+      toast.success("Senha redefinida com sucesso. Faça login com a nova senha.");
+      router.push("/login");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Não foi possível redefinir a senha.");
+    },
+  });
+}
+
 export function useRequireAuth(allowedRoles?: UserRole[]) {
   const router = useRouter();
-  const pathname = usePathname();
   const redirected = useRef(false);
   const { isLoading } = useCurrentUser();
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
-
-  const needsOnboarding = Boolean(
-    user && user.role === "OWNER" && !user.niche && pathname !== "/configuracoes"
-  );
 
   useEffect(() => {
     if (!isInitialized || isLoading || redirected.current) return;
@@ -136,12 +156,6 @@ export function useRequireAuth(allowedRoles?: UserRole[]) {
     if (allowedRoles && !hasRole(user.role, allowedRoles)) {
       redirected.current = true;
       router.replace(getDefaultRouteForRole(user.role));
-      return;
-    }
-
-    if (needsOnboarding) {
-      redirected.current = true;
-      router.replace("/configuracoes");
     }
   });
 
@@ -149,7 +163,7 @@ export function useRequireAuth(allowedRoles?: UserRole[]) {
     user,
     isLoading: isLoading || !isInitialized,
     isAuthorized: Boolean(
-      user && (!allowedRoles || hasRole(user.role, allowedRoles)) && !needsOnboarding
+      user && (!allowedRoles || hasRole(user.role, allowedRoles))
     ),
   };
 }

@@ -153,7 +153,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                 <Link
                   key={service.id}
                   href={`/servicos/${service.id}`}
-                  className="flex items-center justify-between gap-3 p-4 hover:bg-accent/40"
+                  className="flex cursor-pointer items-center justify-between gap-3 p-4 transition-colors hover:bg-muted/40"
                 >
                   <div>
                     <p className="font-medium">{formatDate(service.scheduledDate)}</p>

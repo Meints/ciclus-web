@@ -89,6 +89,14 @@ export default function LoginPage() {
                       />
                     </FormControl>
                     <FormMessage />
+                    <div className="flex justify-end">
+                      <Link
+                        href="/forgot-password"
+                        className="text-xs text-muted-foreground hover:text-primary hover:underline"
+                      >
+                        Esqueci minha senha
+                      </Link>
+                    </div>
                   </FormItem>
                 )}
               />

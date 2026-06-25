@@ -8,6 +8,7 @@ import {
   ClockIcon,
   EyeIcon,
   FileTextIcon,
+  ListChecksIcon,
   Loader2Icon,
   TrashIcon,
   UploadIcon,
@@ -31,11 +32,22 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getChecklistFields } from "@/lib/checklist-types";
 import { ConfirmationLinkPanel } from "@/components/services/confirmation-link-panel";
 import { ServiceReportPreview } from "@/components/services/service-report-preview";
 import { completeServiceSchema, type CompleteServiceFormValues } from "@/lib/validations/service";
 import { useCompleteService, useUploadServicePhoto } from "@/hooks/use-services";
 import { useAuthStore } from "@/store/auth.store";
+import { nicheHasEquipment } from "@/lib/equipment-types";
 import { EQUIPMENT_TYPE_LABELS } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import type { CompleteServicePayload, Service } from "@/types/service";
@@ -93,12 +105,15 @@ export function ServiceCompleteDialog({
 }: ServiceCompleteDialogProps) {
   const [photos, setPhotos] = useState<{ url: string; name: string }[]>([]);
   const [equipmentNotes, setEquipmentNotes] = useState<Record<string, string>>({});
+  const [checklistValues, setChecklistValues] = useState<Record<string, unknown>>({});
   const [completedService, setCompletedService] = useState<Service | null>(null);
   const [uploading, setUploading] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const user = useAuthStore((state) => state.user);
+  const showEquipment = nicheHasEquipment(user?.niche) && equipment.length > 0;
+  const checklistFields = getChecklistFields(user?.niche);
 
   const completeService = useCompleteService(serviceId);
   const uploadPhoto = useUploadServicePhoto(serviceId);
@@ -116,6 +131,7 @@ export function ServiceCompleteDialog({
       form.reset({ executionNotes: "", durationMinutes: undefined });
       setPhotos([]);
       setEquipmentNotes({});
+      setChecklistValues({});
       setCompletedService(null);
       setActiveTab("form");
     }
@@ -166,12 +182,21 @@ export function ServiceCompleteDialog({
   }
 
   function onSubmit(values: CompleteServiceFormValues) {
+    const checklistData = Object.fromEntries(
+      Object.entries(checklistValues).filter(([, value]) => {
+        if (value === undefined || value === null) return false;
+        if (typeof value === "string") return value.trim().length > 0;
+        return true;
+      }),
+    );
+
     const payload: CompleteServicePayload = {
       executionNotes: values.executionNotes,
       durationMinutes: values.durationMinutes ?? undefined,
       equipmentNotes: Object.entries(equipmentNotes)
         .filter(([, note]) => note.trim().length > 0)
         .map(([equipmentId, note]) => ({ equipmentId, note })),
+      ...(Object.keys(checklistData).length > 0 ? { checklistData } : {}),
     };
     completeService.mutate(payload, {
       onSuccess: (data) => {
@@ -215,6 +240,10 @@ export function ServiceCompleteDialog({
                 <TabsTrigger value="form" className="flex-1 gap-2">
                   <FileTextIcon className="h-4 w-4" />
                   Formulário
+                </TabsTrigger>
+                <TabsTrigger value="checklist" className="flex-1 gap-2">
+                  <ListChecksIcon className="h-4 w-4" />
+                  Checklist
                 </TabsTrigger>
                 <TabsTrigger value="preview" className="flex-1 gap-2">
                   <EyeIcon className="h-4 w-4" />
@@ -335,7 +364,7 @@ export function ServiceCompleteDialog({
                       )}
                     </div>
 
-                    {equipment.length > 0 && (
+                    {showEquipment && (
                       <div className="flex flex-col gap-2">
                         <p className="text-sm font-medium">Observação por equipamento</p>
                         {equipment.map((item) => (
@@ -374,6 +403,83 @@ export function ServiceCompleteDialog({
                 </Form>
               </TabsContent>
 
+              <TabsContent value="checklist" className="mt-4">
+                <div className="flex flex-col gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    Preencha o checklist técnico do serviço (opcional). Os dados serão
+                    salvos no registro da execução.
+                  </p>
+                  {checklistFields.map((field) => {
+                    const value = checklistValues[field.key];
+                    if (field.type === "checkbox") {
+                      return (
+                        <div key={field.key} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`checklist-${field.key}`}
+                            checked={Boolean(value)}
+                            onCheckedChange={(checked) =>
+                              setChecklistValues((prev) => ({
+                                ...prev,
+                                [field.key]: checked === true,
+                              }))
+                            }
+                          />
+                          <Label htmlFor={`checklist-${field.key}`} className="cursor-pointer">
+                            {field.label}
+                          </Label>
+                        </div>
+                      );
+                    }
+                    if (field.type === "select") {
+                      return (
+                        <div key={field.key} className="flex flex-col gap-1.5">
+                          <Label>{field.label}</Label>
+                          <Select
+                            value={(value as string) ?? ""}
+                            onValueChange={(val) =>
+                              setChecklistValues((prev) => ({ ...prev, [field.key]: val }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(field.options ?? []).map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div key={field.key} className="flex flex-col gap-1.5">
+                        <Label htmlFor={`checklist-${field.key}`}>{field.label}</Label>
+                        <Input
+                          id={`checklist-${field.key}`}
+                          type={field.type === "number" ? "number" : "text"}
+                          className="text-base sm:text-sm"
+                          value={(value as string | number) ?? ""}
+                          onChange={(event) =>
+                            setChecklistValues((prev) => ({
+                              ...prev,
+                              [field.key]:
+                                field.type === "number"
+                                  ? event.target.value === ""
+                                    ? undefined
+                                    : Number(event.target.value)
+                                  : event.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+
               <TabsContent value="preview" className="mt-4">
                 <div className="max-h-[60vh] overflow-y-auto rounded-lg border p-4">
                   <ServiceReportPreview
@@ -402,6 +508,7 @@ export function ServiceCompleteDialog({
                     executionNotes={watchedNotes ?? ""}
                     durationMinutes={watchedDuration ?? undefined}
                     equipmentNotes={equipmentNotes}
+                    photoUrls={photos.map((p) => p.url)}
                   />
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">

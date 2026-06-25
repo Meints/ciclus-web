@@ -46,8 +46,8 @@ export function KpiCard({
     },
     danger: {
       bg: "bg-danger-50",
-      text: "text-danger-600",
-      icon: "text-danger-600",
+      text: "text-danger-500",
+      icon: "text-danger-500",
     },
   };
 
@@ -57,31 +57,31 @@ export function KpiCard({
     <div
       onClick={onClick}
       className={cn(
-        "rounded-lg border-[0.5px] border-ciclus-gray-100 bg-card p-5 transition-all dark:border-border",
+        "rounded-lg border border-border bg-card p-5 shadow-sm transition-all",
         onClick && "cursor-pointer hover:shadow-md hover:border-brand-200 dark:hover:border-brand-600",
       )}
     >
       {loading ? (
         <div className="flex flex-col gap-3">
-          <div className="h-10 w-10 animate-pulse rounded-lg bg-muted" />
+          <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />
           <div className="h-3 w-20 animate-pulse rounded bg-muted" />
           <div className="h-7 w-16 animate-pulse rounded bg-muted" />
         </div>
       ) : (
         <>
-          <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", s.bg, s.icon)}>
-            <Icon className="h-5 w-5" />
+          <div className={cn("flex h-9 w-9 items-center justify-center rounded-lg", s.bg, s.icon)}>
+            <Icon className="h-4.5 w-4.5" />
           </div>
           <p className="mt-3 text-xs text-muted-foreground">{label}</p>
           <div className="flex items-end gap-2">
-            <p className={cn("text-[28px] font-medium leading-tight", s.text)}>
+            <p className={cn("text-2xl font-semibold leading-tight tabular-nums", s.text)}>
               {displayValue}
             </p>
             {trend && (
               <span
                 className={cn(
-                  "mb-1 text-xs font-medium",
-                  trend.positive ? "text-success-600" : "text-danger-600",
+                  "mb-0.5 text-xs font-medium",
+                  trend.positive ? "text-success-600" : "text-danger-500",
                 )}
               >
                 {trend.positive ? "↑" : "↓"} {Math.abs(trend.value)}%

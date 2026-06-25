@@ -48,55 +48,55 @@ export function CustomerCard({ customer }: { customer: Customer }) {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-          <Tooltip content="Exibir documento do cliente">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <BuildingIcon className="h-4 w-4 shrink-0" />
-              <SensitiveData
-                masked={customer.document}
-                onReveal={revealDocument}
-                canReveal={canReveal}
-                revealLabel="Exibir documento do cliente"
-                hideLabel="Ocultar documento"
-              />
-            </div>
-          </Tooltip>
-          {customer.phone && (
-            <Tooltip content="Ligar para o cliente">
+        <div className="flex flex-col gap-3 text-sm">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <BuildingIcon className="h-4 w-4 shrink-0" />
+            <SensitiveData
+              masked={customer.document}
+              onReveal={revealDocument}
+              canReveal={canReveal}
+              revealLabel="Exibir documento do cliente"
+              hideLabel="Ocultar documento"
+            />
+          </div>
+          <div className="flex flex-wrap gap-x-6 gap-y-3">
+            {customer.phone && (
+              <Tooltip content="Ligar para o cliente">
+                <a
+                  href={`tel:+55${phoneDigits}`}
+                  className="inline-flex w-fit items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                >
+                  <PhoneIcon className="h-4 w-4 shrink-0" />
+                  {maskPhone(customer.phone)}
+                  <ExternalLinkIcon className="h-3 w-3" />
+                </a>
+              </Tooltip>
+            )}
+            {customer.email && (
+              <Tooltip content="Enviar e-mail para o cliente">
+                <a
+                  href={`mailto:${customer.email}`}
+                  className="inline-flex w-fit items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                >
+                  <MailIcon className="h-4 w-4 shrink-0" />
+                  {customer.email}
+                  <ExternalLinkIcon className="h-3 w-3" />
+                </a>
+              </Tooltip>
+            )}
+            <Tooltip content="Abrir no Google Maps">
               <a
-                href={`tel:+55${phoneDigits}`}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                href={buildMapsUrl(customer.address)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex w-fit items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
-                <PhoneIcon className="h-4 w-4 shrink-0" />
-                {maskPhone(customer.phone)}
-                <ExternalLinkIcon className="h-3 w-3" />
+                <MapPinIcon className="h-4 w-4 shrink-0" />
+                {formatAddress(customer.address)}
+                <ExternalLinkIcon className="h-3 w-3 shrink-0" />
               </a>
             </Tooltip>
-          )}
-          {customer.email && (
-            <Tooltip content="Enviar e-mail para o cliente">
-              <a
-                href={`mailto:${customer.email}`}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <MailIcon className="h-4 w-4 shrink-0" />
-                {customer.email}
-                <ExternalLinkIcon className="h-3 w-3" />
-              </a>
-            </Tooltip>
-          )}
-          <Tooltip content="Abrir no Google Maps">
-            <a
-              href={buildMapsUrl(customer.address)}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <MapPinIcon className="h-4 w-4 shrink-0" />
-              {formatAddress(customer.address)}
-              <ExternalLinkIcon className="h-3 w-3 shrink-0" />
-            </a>
-          </Tooltip>
+          </div>
         </div>
       </CardContent>
     </Card>

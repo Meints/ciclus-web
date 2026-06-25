@@ -117,6 +117,22 @@ export function useCompleteService(id: string) {
   });
 }
 
+export function useToggleServicePaid(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => serviceService.togglePaid(id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [SERVICES_KEY] });
+      queryClient.setQueryData([SERVICES_KEY, id], data);
+      toast.success(data.isPaid ? "Serviço marcado como pago." : "Pagamento marcado como pendente.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Não foi possível atualizar o pagamento.");
+    },
+  });
+}
+
 export function useResendConfirmation(id: string) {
   const queryClient = useQueryClient();
 

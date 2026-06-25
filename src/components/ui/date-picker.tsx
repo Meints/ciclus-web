@@ -56,9 +56,9 @@ export function DatePicker({
           type="button"
           disabled={disabled}
           className={cn(
-            "flex h-9 w-full items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-[13px] shadow-sm transition-colors",
+            "flex h-9 w-full items-center gap-2 rounded-md border border-input bg-card px-3 py-2 text-sm transition-colors",
             "placeholder:text-muted-foreground",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ciclus-blue-50 focus-visible:ring-offset-0",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-100 focus-visible:ring-offset-0",
             "disabled:cursor-not-allowed disabled:opacity-50",
             "hover:bg-accent hover:text-accent-foreground",
             !date && "text-muted-foreground",

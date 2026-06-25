@@ -17,7 +17,7 @@ const TableHeader = React.forwardRef<
   <thead
     ref={ref}
     className={cn(
-      "bg-ciclus-gray-50 [&_tr]:border-b-[0.5px] [&_tr]:border-ciclus-gray-100",
+      "bg-muted/50 [&_tr]:border-b [&_tr]:border-border",
       className
     )}
     {...props}
@@ -50,7 +50,7 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
     <tr
       ref={ref}
       className={cn(
-        "border-b-[0.5px] border-ciclus-gray-100 transition-colors duration-100 hover:bg-ciclus-gray-50 data-[state=selected]:bg-muted",
+        "border-b border-border transition-colors duration-100 hover:bg-muted/40 data-[state=selected]:bg-muted",
         className
       )}
       {...props}
@@ -66,7 +66,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-10 px-3 text-left align-middle text-[11px] font-medium uppercase tracking-wide text-ciclus-gray-600 [&:has([role=checkbox])]:pr-0",
+      "h-10 px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-wide text-muted-foreground [&:has([role=checkbox])]:pr-0",
       className
     )}
     {...props}
@@ -81,7 +81,7 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cn(
-      "h-12 px-3 align-middle text-[13px] text-ciclus-gray-900 [&:has([role=checkbox])]:pr-0",
+      "h-12 px-3 align-middle text-sm text-foreground [&:has([role=checkbox])]:pr-0",
       className
     )}
     {...props}

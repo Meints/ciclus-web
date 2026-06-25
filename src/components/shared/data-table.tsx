@@ -75,7 +75,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg border-[0.5px] border-ciclus-gray-100 overflow-x-auto">
+      <div className="rounded-lg border border-border overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -127,7 +127,7 @@ export function DataTable<TData, TValue>({
 
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-xs text-ciclus-gray-600">
+          <p className="text-xs text-muted-foreground">
             Mostrando {rangeStart}–{rangeEnd} de {pagination.total} resultados
           </p>
           <div className="flex items-center gap-1">

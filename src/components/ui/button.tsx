@@ -4,18 +4,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-[13px] font-medium transition-colors duration-100 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ciclus-blue-50 focus-visible:ring-offset-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-100 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-brand-200 focus-visible:ring-offset-0 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        default: "bg-ciclus-blue-600 text-white hover:bg-ciclus-blue-800",
-        destructive: "bg-ciclus-red-600 text-white hover:bg-ciclus-red-600/90",
+        default: "bg-brand-600 text-white hover:bg-brand-700 shadow-xs",
+        destructive: "bg-danger-500 text-white hover:bg-danger-600 shadow-xs",
         outline:
-          "border-[0.5px] border-input bg-background text-ciclus-gray-800 hover:bg-ciclus-gray-50",
+          "border border-input bg-card text-gray-800 hover:bg-gray-50 hover:text-gray-900",
         secondary:
-          "border-[0.5px] border-input bg-background text-ciclus-gray-800 hover:bg-ciclus-gray-50",
-        ghost: "text-ciclus-gray-600 hover:bg-ciclus-gray-50",
-        link: "text-ciclus-blue-600 underline-offset-4 hover:underline",
+          "bg-secondary text-secondary-foreground hover:bg-muted border border-transparent",
+        ghost: "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+        link: "text-brand-600 underline-offset-4 hover:underline",
       },
       size: {
         default: "h-9 px-4 py-2",

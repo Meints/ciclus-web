@@ -4,6 +4,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   OWNER: "Proprietário",
   ADMIN: "Administrador",
   TECHNICIAN: "Técnico",
+  SUPERADMIN: "Super Admin",
 };
 
 export function getRoleLabel(role: UserRole): string {
@@ -16,7 +17,9 @@ export function hasRole(role: UserRole | undefined, allowed: UserRole[]): boolea
 }
 
 export function getDefaultRouteForRole(role: UserRole): string {
-  return role === "TECHNICIAN" ? "/servicos" : "/";
+  if (role === "SUPERADMIN") return "/admin";
+  if (role === "TECHNICIAN") return "/servicos";
+  return "/";
 }
 
 export function getCookieValue(name: string): string | null {

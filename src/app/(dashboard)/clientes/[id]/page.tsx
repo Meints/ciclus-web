@@ -19,6 +19,7 @@ import { CustomerCard } from "@/components/customers/customer-card";
 import { CustomerForm } from "@/components/customers/customer-form";
 import { EquipmentForm } from "@/components/equipment/equipment-form";
 import { EquipmentTable } from "@/components/equipment/equipment-table";
+import Link from "next/link";
 import { useCustomer, useUpdateCustomer, useToggleCustomer } from "@/hooks/use-customers";
 import { useContracts } from "@/hooks/use-contracts";
 import { useServices } from "@/hooks/use-services";
@@ -29,9 +30,11 @@ import {
   useUpdateEquipment,
 } from "@/hooks/use-equipment";
 import { CONTRACT_STATUS_LABELS, CONTRACT_STATUS_VARIANTS, SERVICE_STATUS_LABELS, SERVICE_STATUS_VARIANTS } from "@/lib/labels";
+import { nicheHasEquipment } from "@/lib/equipment-types";
 import { getServiceTypeLabel } from "@/lib/service-types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { customerService } from "@/services/customer.service";
+import { useAuthStore } from "@/store/auth.store";
 import type { CustomerFormValues } from "@/lib/validations/customer";
 import type { EquipmentFormValues } from "@/lib/validations/equipment";
 import type { Equipment } from "@/types/equipment";
@@ -43,6 +46,9 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
   const [isEquipmentFormOpen, setIsEquipmentFormOpen] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
   const [revealedData, setRevealedData] = useState<{ document: string; email: string | null } | null>(null);
+
+  const user = useAuthStore((state) => state.user);
+  const showEquipment = nicheHasEquipment(user?.niche);
 
   const { data: customer, isLoading } = useCustomer(id);
   const updateCustomer = useUpdateCustomer(id);
@@ -143,7 +149,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
         <TabsList>
           <TabsTrigger value="contratos">Contratos</TabsTrigger>
           <TabsTrigger value="historico">Histórico de serviços</TabsTrigger>
-          <TabsTrigger value="equipamentos">Equipamentos</TabsTrigger>
+          {showEquipment && <TabsTrigger value="equipamentos">Equipamentos</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="contratos">
@@ -161,7 +167,11 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
               ) : (
                 <div className="divide-y">
                   {contracts.data.map((contract) => (
-                    <div key={contract.id} className="flex items-center justify-between p-4">
+                    <Link
+                      key={contract.id}
+                      href={`/contratos/${contract.id}`}
+                      className="flex cursor-pointer items-center justify-between gap-3 p-4 transition-colors hover:bg-muted/40"
+                    >
                       <div>
                         <p className="font-medium">{formatCurrency(contract.value)}</p>
                         <p className="text-sm text-muted-foreground">
@@ -173,7 +183,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         label={CONTRACT_STATUS_LABELS[contract.status]}
                         variant={CONTRACT_STATUS_VARIANTS[contract.status]}
                       />
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
@@ -196,7 +206,11 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
               ) : (
                 <div className="divide-y">
                   {services.data.map((service) => (
-                    <div key={service.id} className="flex items-center justify-between p-4">
+                    <Link
+                      key={service.id}
+                      href={`/servicos/${service.id}`}
+                      className="flex cursor-pointer items-center justify-between gap-3 p-4 transition-colors hover:bg-muted/40"
+                    >
                       <div>
                         <p className="font-medium">{getServiceTypeLabel(service.serviceType)}</p>
                         <p className="text-sm text-muted-foreground">
@@ -208,7 +222,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         label={SERVICE_STATUS_LABELS[service.status]}
                         variant={SERVICE_STATUS_VARIANTS[service.status]}
                       />
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}

@@ -44,6 +44,8 @@ export interface Service {
   confirmedDocumentType?: string | null;
   estimatedDurationMinutes?: number | null;
   durationMinutes?: number | null;
+  isPaid?: boolean;
+  checklistData?: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -74,6 +76,7 @@ export interface CompleteServicePayload {
   executionNotes: string;
   durationMinutes?: number;
   equipmentNotes?: ServiceEquipmentNote[];
+  checklistData?: Record<string, unknown>;
 }
 
 export interface ServiceHistoryEntry {

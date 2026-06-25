@@ -1,4 +1,3 @@
-import { ClockIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getServiceTypeLabel } from "@/lib/service-types";
 import { CALENDAR_STATUS_STYLES } from "./calendar-status";
@@ -29,7 +28,7 @@ export function CalendarEventContent({ service, variant }: CalendarEventContentP
     return (
       <div
         className={cn(
-          "flex w-full items-center gap-1.5 truncate rounded-md border px-1.5 py-0.5 text-[11px] font-medium",
+          "flex w-full min-w-0 items-center gap-1.5 overflow-hidden rounded-md border px-1.5 py-0.5 text-[11px] font-medium",
           style.chipBg,
           style.chipBorder,
           style.text
@@ -37,32 +36,27 @@ export function CalendarEventContent({ service, variant }: CalendarEventContentP
       >
         <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", style.dot)} />
         {time && <span className="shrink-0 tabular-nums">{time}</span>}
-        <span className="truncate">{service.customerName}</span>
+        <span className="min-w-0 truncate">{service.customerName}</span>
       </div>
     );
   }
 
+  // time variant — single-row layout so content is always visible regardless of cell height
   return (
     <div
       className={cn(
-        "flex h-full w-full flex-col gap-0.5 overflow-hidden rounded-md border px-2 py-1 text-xs",
+        "flex w-full min-w-0 items-center gap-1.5 overflow-hidden rounded-md border px-1.5 py-0.5 text-[11px]",
         style.chipBg,
         style.chipBorder,
         style.text
       )}
     >
-      <span className="flex items-center gap-1 truncate font-semibold">
-        <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", style.dot)} />
-        {service.customerName}
+      <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", style.dot)} />
+      {time && <span className="shrink-0 tabular-nums font-medium">{time}</span>}
+      <span className="min-w-0 truncate font-semibold">{service.customerName}</span>
+      <span className="hidden min-w-0 truncate opacity-70 sm:block">
+        · {getServiceTypeLabel(service.serviceType)}
       </span>
-      <span className="truncate text-[11px] opacity-80">
-        {getServiceTypeLabel(service.serviceType)}
-      </span>
-      {time && (
-        <span className="mt-auto flex items-center gap-1 text-[11px] opacity-70">
-          <ClockIcon className="h-3 w-3" /> {time}
-        </span>
-      )}
     </div>
   );
 }

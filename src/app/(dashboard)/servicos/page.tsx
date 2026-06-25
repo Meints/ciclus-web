@@ -4,8 +4,10 @@ import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Columns3Icon,
+  FilterIcon,
   ListIcon,
   PlusIcon,
+  SearchIcon,
 } from "lucide-react";
 import {
   Dialog,
@@ -23,8 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { startOfWeek, endOfWeek } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { startOfWeek, endOfWeek } from "date-fns";
 import { PageHeader } from "@/components/shared/page-header";
 import { ServiceTable } from "@/components/services/service-table";
 import { ServiceKanban } from "@/components/services/service-kanban";
@@ -54,7 +56,7 @@ export default function ServicesPage({
 
   const [status, setStatus] = useState<string>(ALL);
   const [employeeId, setEmployeeId] = useState<string>(ALL);
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [page, setPage] = useState(1);
   const [view, setView] = useState<string>(isTechnician ? "list" : "kanban");
@@ -94,7 +96,12 @@ export default function ServicesPage({
   });
   const createService = useCreateService();
 
-  const services = data?.data ?? [];
+  const allServices = data?.data ?? [];
+  const services = searchInput
+    ? allServices.filter((s) =>
+        s.customerName.toLowerCase().includes(searchInput.toLowerCase())
+      )
+    : allServices;
 
   const createDefaultValues = useMemo(() =>
     params.customerId || params.contractId
@@ -122,70 +129,7 @@ export default function ServicesPage({
     );
   }
 
-  const filtersNode = (
-    <div className="flex flex-wrap gap-3">
-      <Select
-        value={status}
-        onValueChange={(value) => {
-          setStatus(value);
-          setPage(1);
-        }}
-      >
-        <SelectTrigger className="w-40">
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>Todos</SelectItem>
-          {Object.entries(SERVICE_STATUS_LABELS).map(([value, label]) => (
-            <SelectItem key={value} value={value}>
-              {label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {isAdminOrOwner && (
-        <Select
-          value={employeeId}
-          onValueChange={(value) => {
-            setEmployeeId(value);
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder="Técnico" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>Todos os técnicos</SelectItem>
-            {technicians.filter((t) => t.isActive).map((technician) => (
-              <SelectItem key={technician.id} value={technician.id}>
-                {technician.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-
-      <DatePicker
-        value={dateFilter}
-        onChange={(value) => {
-          setDateFilter(value);
-          setPage(1);
-        }}
-        className="w-40"
-      />
-
-      <Input
-        placeholder="Buscar cliente..."
-        className="w-48"
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-          setPage(1);
-        }}
-      />
-    </div>
-  );
+  const hasActiveFilters = status !== ALL || employeeId !== ALL || dateFilter || !!searchInput;
 
   return (
     <div className="flex flex-col gap-6">
@@ -206,26 +150,100 @@ export default function ServicesPage({
         }
       />
 
-      {filtersNode}
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
+        <FilterIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+
+        <Select
+          value={status}
+          onValueChange={(value) => { setStatus(value); setPage(1); }}
+        >
+          <SelectTrigger className="h-8 w-40 border-0 bg-muted/50 text-sm shadow-none">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>Todos</SelectItem>
+            {Object.entries(SERVICE_STATUS_LABELS).map(([value, label]) => (
+              <SelectItem key={value} value={value}>{label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {isAdminOrOwner && (
+          <Select
+            value={employeeId}
+            onValueChange={(value) => { setEmployeeId(value); setPage(1); }}
+          >
+            <SelectTrigger className="h-8 w-44 border-0 bg-muted/50 text-sm shadow-none">
+              <SelectValue placeholder="Técnico" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Todos os técnicos</SelectItem>
+              {technicians.filter((t) => t.isActive).map((technician) => (
+                <SelectItem key={technician.id} value={technician.id}>
+                  {technician.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
+        <DatePicker
+          value={dateFilter}
+          onChange={(value) => { setDateFilter(value); setPage(1); }}
+          className="h-8 w-52 border-0 bg-muted/50 shadow-none"
+        />
+
+        <div className="relative flex items-center">
+          <SearchIcon className="absolute left-2.5 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
+            placeholder="Buscar cliente..."
+            className="h-8 w-44 border-0 bg-muted/50 pl-8 text-sm shadow-none focus-visible:ring-0"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+        </div>
+
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={() => { setStatus(ALL); setEmployeeId(ALL); setDateFilter(""); setSearchInput(""); setPage(1); }}
+            className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
+          >
+            Limpar
+          </button>
+        )}
+
+        {!isTechnician && (
+          <div className="ml-auto flex items-center gap-1 rounded-md border border-border bg-muted/40 p-0.5">
+            <button
+              type="button"
+              onClick={() => setView("kanban")}
+              className={`flex cursor-pointer items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+                view === "kanban" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Columns3Icon className="h-3.5 w-3.5" />
+              Kanban
+            </button>
+            <button
+              type="button"
+              onClick={() => setView("list")}
+              className={`flex cursor-pointer items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+                view === "list" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <ListIcon className="h-3.5 w-3.5" />
+              Lista
+            </button>
+          </div>
+        )}
+      </div>
 
       {!isTechnician && (
-        <Tabs value={view} onValueChange={setView}>
-          <TabsList>
-            <TabsTrigger value="kanban" className="gap-2">
-              <Columns3Icon className="h-4 w-4" />
-              Kanban
-            </TabsTrigger>
-            <TabsTrigger value="list" className="gap-2">
-              <ListIcon className="h-4 w-4" />
-              Lista
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="kanban" className="mt-4">
-            <ServiceKanban services={services} isLoading={isLoading} />
-          </TabsContent>
-
-          <TabsContent value="list" className="mt-4">
+        <>
+          {view === "kanban" && <ServiceKanban services={services} isLoading={isLoading} />}
+          {view === "list" && (
             <ServiceTable
               data={services}
               isLoading={isLoading}
@@ -242,8 +260,8 @@ export default function ServicesPage({
                   : undefined
               }
             />
-          </TabsContent>
-        </Tabs>
+          )}
+        </>
       )}
 
       {isTechnician && (

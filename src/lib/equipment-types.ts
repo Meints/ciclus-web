@@ -1,5 +1,17 @@
 import type { ServiceNiche } from "./service-types";
 
+export const NICHES_WITH_EQUIPMENT: ServiceNiche[] = [
+  "AIR_CONDITIONING",
+  "WATER_TANK",
+  "BUILDING_MAINTENANCE",
+  "ELEVATOR",
+  "GENERAL",
+];
+
+export function nicheHasEquipment(niche?: string | null): boolean {
+  return NICHES_WITH_EQUIPMENT.includes(niche as ServiceNiche);
+}
+
 export const EQUIPMENT_TYPES_BY_NICHE: Record<ServiceNiche, { value: string; label: string }[]> = {
   AIR_CONDITIONING: [
     { value: "AC_SPLIT", label: "Ar-condicionado Split" },

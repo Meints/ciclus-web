@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BarChart3Icon,
   ClipboardListIcon,
   FileTextIcon,
   LayoutDashboardIcon,
@@ -43,6 +44,7 @@ export function Sidebar({ className, onNavigate }: { className?: string; onNavig
     {
       items: [
         { label: "Dashboard", href: "/", icon: LayoutDashboardIcon, roles: ["OWNER", "ADMIN"] },
+        { label: "Relatórios", href: "/relatorios", icon: BarChart3Icon, roles: ["OWNER", "ADMIN"] },
       ],
     },
     {
@@ -89,20 +91,22 @@ export function Sidebar({ className, onNavigate }: { className?: string; onNavig
   return (
     <aside
       className={cn(
-        "flex h-full w-60 flex-col border-r-[0.5px] border-ciclus-gray-100 bg-white dark:border-border dark:bg-background",
+        "flex h-full w-60 flex-col border-r border-border bg-card",
         className,
       )}
     >
-      <div className="flex h-[52px] items-center gap-2 border-b-[0.5px] border-ciclus-gray-100 px-4 dark:border-border">
-        <RecycleIcon className="h-4 w-4 text-brand-600" />
-        <span className="text-[15px] font-medium text-brand-600">Ciclus</span>
+      <div className="flex h-[52px] items-center gap-2.5 border-b border-border px-4">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-600 text-white">
+          <RecycleIcon className="h-4 w-4" />
+        </div>
+        <span className="text-[15px] font-semibold text-foreground tracking-tight">Ciclus</span>
       </div>
 
       <nav className="flex flex-1 flex-col overflow-y-auto py-2">
         {sections.map((section, index) => (
           <div key={section.label ?? index} className="flex flex-col">
             {section.label && (
-              <p className="px-4 pb-1 pt-3 text-[11px] font-medium uppercase tracking-wide text-ciclus-gray-400 dark:text-muted-foreground">
+              <p className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                 {section.label}
               </p>
             )}
@@ -117,10 +121,10 @@ export function Sidebar({ className, onNavigate }: { className?: string; onNavig
                   href={item.href}
                   onClick={onNavigate}
                   className={cn(
-                    "group flex items-center gap-3 border-l-2 border-transparent px-4 py-2 text-[13px] transition-colors",
+                    "group mx-2 flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors",
                     isActive
-                      ? "border-brand-600 bg-brand-50 font-medium text-brand-600 dark:bg-brand-50"
-                      : "text-ciclus-gray-600 hover:bg-ciclus-gray-50 dark:text-muted-foreground dark:hover:bg-accent",
+                      ? "bg-brand-50 font-medium text-brand-700 dark:bg-brand-50"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground",
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
@@ -142,29 +146,29 @@ export function Sidebar({ className, onNavigate }: { className?: string; onNavig
         ))}
       </nav>
 
-      <div className="flex flex-col border-t-[0.5px] border-ciclus-gray-100 dark:border-border">
+      <div className="flex flex-col border-t border-border">
         <Link
           href="/configuracoes"
           onClick={onNavigate}
           className={cn(
-            "flex items-center gap-3 border-l-2 border-transparent px-4 py-2 text-[13px] transition-colors",
+            "mx-2 flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors",
             pathname.startsWith("/configuracoes")
-              ? "border-brand-600 bg-brand-50 font-medium text-brand-600 dark:bg-brand-50"
-              : "text-ciclus-gray-600 hover:bg-ciclus-gray-50 dark:text-muted-foreground dark:hover:bg-accent",
+              ? "bg-brand-50 font-medium text-brand-700 dark:bg-brand-50"
+              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground",
           )}
         >
           <SettingsIcon className="h-4 w-4 shrink-0" />
           Configurações
         </Link>
-        <div className="flex items-center gap-2 px-4 py-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50 text-xs font-medium text-brand-600 dark:bg-brand-50">
+        <div className="mx-2 mb-2 flex items-center gap-2.5 rounded-md bg-muted/60 px-3 py-2.5">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-50">
             {user ? getInitials(user.name) : "?"}
           </div>
           <div className="flex min-w-0 flex-col">
-            <span className="truncate text-[13px] font-medium text-ciclus-gray-900 dark:text-foreground">
+            <span className="truncate text-sm font-medium text-foreground">
               {user?.name}
             </span>
-            <span className="truncate text-[11px] text-ciclus-gray-400 dark:text-muted-foreground">
+            <span className="truncate text-[11px] text-muted-foreground">
               {user ? getRoleLabel(user.role) : ""}
             </span>
           </div>

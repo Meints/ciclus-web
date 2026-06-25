@@ -23,4 +23,5 @@ export interface ConfirmPayload {
   name: string;
   document?: string;
   documentType?: "CPF" | "CNPJ";
+  signatureDataUrl?: string;
 }

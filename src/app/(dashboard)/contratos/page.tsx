@@ -2,7 +2,7 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlusIcon } from "lucide-react";
+import { FilterIcon, PlusIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -79,6 +79,8 @@ export default function ContractsPage({
     );
   }
 
+  const hasActiveFilters = status !== ALL || startDate || endDate;
+
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
@@ -92,7 +94,9 @@ export default function ContractsPage({
         }
       />
 
-      <div className="flex flex-wrap gap-3">
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
+        <FilterIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
         <Select
           value={status}
           onValueChange={(value) => {
@@ -100,7 +104,7 @@ export default function ContractsPage({
             setPage(1);
           }}
         >
-          <SelectTrigger className="w-44">
+          <SelectTrigger className="h-8 w-44 border-0 bg-muted/50 text-sm shadow-none">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -120,7 +124,7 @@ export default function ContractsPage({
             setPage(1);
           }}
           placeholder="Data início"
-          className="w-40"
+          className="h-8 w-40 border-0 bg-muted/50 shadow-none"
         />
         <DatePicker
           value={endDate}
@@ -129,8 +133,24 @@ export default function ContractsPage({
             setPage(1);
           }}
           placeholder="Data fim"
-          className="w-40"
+          className="h-8 w-40 border-0 bg-muted/50 shadow-none"
         />
+
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={() => { setStatus(ALL); setStartDate(""); setEndDate(""); setPage(1); }}
+            className="ml-auto text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
+          >
+            Limpar filtros
+          </button>
+        )}
+
+        {data && (
+          <span className={`${hasActiveFilters ? "" : "ml-auto"} shrink-0 text-xs text-muted-foreground`}>
+            {data.meta.total} contrato{data.meta.total !== 1 ? "s" : ""}
+          </span>
+        )}
       </div>
 
       <ContractTable

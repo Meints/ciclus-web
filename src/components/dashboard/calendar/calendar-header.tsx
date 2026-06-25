@@ -66,7 +66,7 @@ export function CalendarHeader({
       <div
         role="group"
         aria-label="Visualização do calendário"
-        className="flex items-center gap-0.5 rounded-full border-[0.5px] border-ciclus-gray-200 bg-ciclus-gray-50 p-0.5"
+        className="flex items-center gap-0.5 rounded-full border border-border bg-muted/60 p-0.5"
       >
         {VIEW_OPTIONS.map((option) => (
           <button
@@ -75,10 +75,10 @@ export function CalendarHeader({
             aria-pressed={activeView === option.key}
             onClick={() => onChangeView(option.key)}
             className={cn(
-              "rounded-full px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ciclus-blue-50",
+              "rounded-full px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-100",
               activeView === option.key
-                ? "bg-background text-ciclus-blue-600 shadow-sm"
-                : "text-ciclus-gray-600 hover:text-ciclus-gray-800"
+                ? "bg-card text-brand-700 shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             {option.label}

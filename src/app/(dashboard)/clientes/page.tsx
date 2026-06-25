@@ -2,7 +2,7 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { PlusIcon, SearchIcon, UsersIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -89,14 +89,21 @@ export default function CustomersPage({
         }
       />
 
-      <div className="relative max-w-sm">
-        <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      {/* Filter bar */}
+      <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
+        <SearchIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
         <Input
           placeholder="Buscar por nome ou CNPJ/CPF..."
-          className="pl-9"
+          className="border-0 bg-transparent p-0 shadow-none focus-visible:ring-0 text-sm"
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
         />
+        {data && (
+          <div className="ml-auto flex items-center gap-1.5 shrink-0 text-xs text-muted-foreground">
+            <UsersIcon className="h-3.5 w-3.5" />
+            <span>{data.meta.total} cliente{data.meta.total !== 1 ? "s" : ""}</span>
+          </div>
+        )}
       </div>
 
       <CustomerTable
