@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
-  AlertTriangleIcon,
   CalendarIcon,
   CheckCircle2Icon,
   ClipboardListIcon,
@@ -49,7 +48,7 @@ import type { AuditFilters } from "@/hooks/use-dashboard";
 import type { RecentActivity } from "@/types/dashboard";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useUpdateCompanyNiche, useUploadCompanyLogo } from "@/hooks/use-company";
+import { useUploadCompanyLogo } from "@/hooks/use-company";
 import { changePasswordSchema, type ChangePasswordFormValues } from "@/lib/validations/auth";
 import { getRoleLabel } from "@/lib/auth";
 import { NICHE_LABELS, type ServiceNiche } from "@/lib/service-types";
@@ -304,7 +303,6 @@ export default function SettingsPage() {
   const { user } = useRequireAuth(["OWNER"]);
   const { data: summary, isLoading: isSummaryLoading } = useDashboardSummary();
   const changePassword = useChangePassword();
-  const updateNiche = useUpdateCompanyNiche();
   const uploadLogo = useUploadCompanyLogo();
   const logoInputRef = useRef<HTMLInputElement>(null);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -333,15 +331,6 @@ export default function SettingsPage() {
         description="Gerencie os dados da sua empresa e conta"
       />
 
-      {!user?.niche && (
-        <div className="flex items-start gap-3 rounded-lg border border-warning-400/40 bg-warning-50 p-4 text-sm text-warning-600">
-          <AlertTriangleIcon className="mt-0.5 h-4 w-4 shrink-0" />
-          <p>
-            Defina o <strong>segmento de atuação</strong> da sua empresa para que os tipos de
-            serviço apareçam corretamente nas ordens de serviço.
-          </p>
-        </div>
-      )}
 
       <Tabs defaultValue="empresa">
         <TabsList>
@@ -415,23 +404,15 @@ export default function SettingsPage() {
                     {user ? getRoleLabel(user.role) : "—"}
                   </Badge>
                 </div>
-                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <div className="flex flex-col gap-1">
                   <p className="text-xs text-muted-foreground">Segmento de atuação</p>
-                  <Select
-                    value={user?.niche ?? undefined}
-                    onValueChange={(value) => updateNiche.mutate(value as ServiceNiche)}
-                  >
-                    <SelectTrigger className="sm:max-w-xs">
-                      <SelectValue placeholder="Selecione o segmento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(NICHE_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {user?.niche ? (
+                    <Badge variant="secondary" className="w-fit text-sm">
+                      {NICHE_LABELS[user.niche as ServiceNiche]}
+                    </Badge>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Não configurado</p>
+                  )}
                 </div>
               </div>
             </CardContent>

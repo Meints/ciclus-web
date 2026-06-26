@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ClockIcon, Loader2Icon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -24,6 +24,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomerCombobox } from "@/components/customers/customer-combobox";
 import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 import { Input } from "@/components/ui/input";
 import { serviceSchema, type ServiceFormValues } from "@/lib/validations/service";
 import { CONTRACT_FREQUENCY_LABELS } from "@/lib/labels";
@@ -191,14 +192,10 @@ export function ServiceForm({
                 <FormItem>
                   <FormLabel>Horário</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <ClockIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        type="time"
-                        className="pl-9"
-                        {...field}
-                      />
-                    </div>
+                    <TimePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -95,12 +95,16 @@ export function Sidebar({ className, onNavigate }: { className?: string; onNavig
         className,
       )}
     >
-      <div className="flex h-[52px] items-center gap-2.5 border-b border-border px-4">
+      <Link
+        href="/"
+        onClick={onNavigate}
+        className="flex h-[52px] items-center gap-2.5 border-b border-border px-4 transition-opacity hover:opacity-80"
+      >
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-600 text-white">
           <RecycleIcon className="h-4 w-4" />
         </div>
         <span className="text-[15px] font-semibold text-foreground tracking-tight">Ciclus</span>
-      </div>
+      </Link>
 
       <nav className="flex flex-1 flex-col overflow-y-auto py-2">
         {sections.map((section, index) => (
@@ -160,7 +164,11 @@ export function Sidebar({ className, onNavigate }: { className?: string; onNavig
           <SettingsIcon className="h-4 w-4 shrink-0" />
           Configurações
         </Link>
-        <div className="mx-2 mb-2 flex items-center gap-2.5 rounded-md bg-muted/60 px-3 py-2.5">
+        <Link
+          href="/configuracoes"
+          onClick={onNavigate}
+          className="mx-2 mb-2 flex cursor-pointer items-center gap-2.5 rounded-md bg-muted/60 px-3 py-2.5 transition-colors hover:bg-muted"
+        >
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-50">
             {user ? getInitials(user.name) : "?"}
           </div>
@@ -172,7 +180,7 @@ export function Sidebar({ className, onNavigate }: { className?: string; onNavig
               {user ? getRoleLabel(user.role) : ""}
             </span>
           </div>
-        </div>
+        </Link>
       </div>
     </aside>
   );

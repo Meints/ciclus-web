@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { SignaturePad } from "@/components/shared/signature-pad";
 import { useConfirmationSummary, useConfirmService } from "@/hooks/use-confirmation";
 import { formatDateTime } from "@/lib/utils";
 
@@ -22,7 +21,6 @@ export default function ConfirmServicePage({ params }: { params: Promise<{ token
   const [name, setName] = useState("");
   const [document, setDocument] = useState("");
   const [documentType, setDocumentType] = useState<"CPF" | "CNPJ">("CPF");
-  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   const { data: summary, isLoading } = useConfirmationSummary(token);
   const confirmService = useConfirmService(token);
@@ -32,7 +30,6 @@ export default function ConfirmServicePage({ params }: { params: Promise<{ token
       name,
       document: document.replace(/\D/g, "") || undefined,
       documentType,
-      signatureDataUrl: signatureDataUrl ?? undefined,
     });
   }
 
@@ -157,21 +154,6 @@ export default function ConfirmServicePage({ params }: { params: Promise<{ token
                     className="flex-1"
                   />
                 </div>
-              </div>
-
-              {/* Signature canvas */}
-              <div className="flex flex-col gap-1.5">
-                <Label>Assinatura</Label>
-                <div className="overflow-hidden rounded-lg border border-border bg-white">
-                  <SignaturePad
-                    value={signatureDataUrl}
-                    onChange={setSignatureDataUrl}
-                    height={120}
-                  />
-                </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Assine com o dedo ou mouse na área acima (opcional)
-                </p>
               </div>
 
               <div className="flex items-start gap-2.5 pt-1">

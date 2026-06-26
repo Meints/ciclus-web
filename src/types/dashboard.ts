@@ -14,6 +14,9 @@ export interface DashboardSummary {
   servicesScheduledToday: number;
   confirmationRate: number;
   averageCompletionHours: number;
+  paidThisMonth: number;
+  pendingPayment: number;
+  totalServices: number;
 }
 
 export interface UpcomingService {

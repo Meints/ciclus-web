@@ -9,8 +9,9 @@ export function computeContractStatus(contract: Pick<Contract, "status" | "endDa
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const end = new Date(contract.endDate);
-  end.setHours(0, 0, 0, 0);
+  const datePart = contract.endDate.split("T")[0]!;
+  const [y, m, d] = datePart.split("-").map(Number) as [number, number, number];
+  const end = new Date(y, m - 1, d);
   const days = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
   if (days <= 0) return "EXPIRED";

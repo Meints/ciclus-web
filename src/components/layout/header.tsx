@@ -79,7 +79,7 @@ export function Header({ onQuickAction }: HeaderProps) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button type="button" className="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-muted/60 transition-colors">
+            <button type="button" className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 hover:bg-muted/60 transition-colors">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-50">
                 {user ? getInitials(user.name) : "?"}
               </div>

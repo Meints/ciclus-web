@@ -10,9 +10,11 @@ import {
   FileTextIcon,
   ListChecksIcon,
   Loader2Icon,
+  RefreshCwIcon,
   TrashIcon,
   UploadIcon,
 } from "lucide-react";
+import { api } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -43,7 +45,6 @@ import {
 } from "@/components/ui/select";
 import { getChecklistFields } from "@/lib/checklist-types";
 import { ConfirmationLinkPanel } from "@/components/services/confirmation-link-panel";
-import { ServiceReportPreview } from "@/components/services/service-report-preview";
 import { completeServiceSchema, type CompleteServiceFormValues } from "@/lib/validations/service";
 import { useCompleteService, useUploadServicePhoto } from "@/hooks/use-services";
 import { useAuthStore } from "@/store/auth.store";
@@ -109,6 +110,9 @@ export function ServiceCompleteDialog({
   const [completedService, setCompletedService] = useState<Service | null>(null);
   const [uploading, setUploading] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const user = useAuthStore((state) => state.user);
@@ -134,8 +138,44 @@ export function ServiceCompleteDialog({
       setChecklistValues({});
       setCompletedService(null);
       setActiveTab("form");
+      if (pdfBlobUrl) {
+        URL.revokeObjectURL(pdfBlobUrl);
+        setPdfBlobUrl(null);
+      }
+      setPdfError(false);
     }
-  }, [open, form]);
+  }, [open, form]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function loadPdfPreview() {
+    setPdfLoading(true);
+    setPdfError(false);
+    try {
+      const response = await api.post(
+        `/services/${serviceId}/preview-report`,
+        {
+          executionNotes: form.getValues("executionNotes"),
+          durationMinutes: form.getValues("durationMinutes"),
+          equipmentNotes: Object.entries(equipmentNotes)
+            .filter(([, n]) => n.trim().length > 0)
+            .map(([equipmentId, note]) => ({ equipmentId, note })),
+        },
+        { responseType: "blob" },
+      );
+      const blob = new Blob([response.data as BlobPart], { type: "application/pdf" });
+      if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl);
+      setPdfBlobUrl(URL.createObjectURL(blob));
+    } catch {
+      setPdfError(true);
+    } finally {
+      setPdfLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (activeTab === "preview" && !pdfBlobUrl && !pdfLoading) {
+      loadPdfPreview();
+    }
+  }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePhotoChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -481,39 +521,43 @@ export function ServiceCompleteDialog({
               </TabsContent>
 
               <TabsContent value="preview" className="mt-4">
-                <div className="max-h-[60vh] overflow-y-auto rounded-lg border p-4">
-                  <ServiceReportPreview
-                    companyName={user?.companyName ?? "—"}
-                    companyNiche={user?.niche ?? null}
-                    service={
-                      service ?? {
-                        id: serviceId,
-                        companyId: user?.companyId ?? "",
-                        contractId: "",
-                        customerId: "",
-                        customerName: "—",
-                        customerAddress: "",
-                        customerPhone: null,
-                        serviceType: "",
-                        scheduledDate: new Date().toISOString(),
-                        employeeId: null,
-                        employeeName: null,
-                        status: "COMPLETED",
-                        equipmentIds: [],
-                        equipmentDetails: equipment,
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString(),
-                      }
-                    }
-                    executionNotes={watchedNotes ?? ""}
-                    durationMinutes={watchedDuration ?? undefined}
-                    equipmentNotes={equipmentNotes}
-                    photoUrls={photos.map((p) => p.url)}
-                  />
+                <div className="flex flex-col gap-3">
+                  {pdfLoading ? (
+                    <div className="flex h-[55vh] items-center justify-center rounded-lg border bg-muted/30">
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <Loader2Icon className="h-6 w-6 animate-spin" />
+                        <p className="text-sm">Gerando prévia do laudo...</p>
+                      </div>
+                    </div>
+                  ) : pdfError ? (
+                    <div className="flex h-[55vh] flex-col items-center justify-center gap-3 rounded-lg border bg-muted/30 text-muted-foreground">
+                      <p className="text-sm">Não foi possível gerar a prévia.</p>
+                      <Button type="button" variant="outline" size="sm" onClick={loadPdfPreview}>
+                        <RefreshCwIcon className="h-3.5 w-3.5" />
+                        Tentar novamente
+                      </Button>
+                    </div>
+                  ) : pdfBlobUrl ? (
+                    <iframe
+                      src={pdfBlobUrl}
+                      className="w-full rounded-lg border"
+                      style={{ height: "55vh" }}
+                      title="Prévia do laudo"
+                    />
+                  ) : null}
+                  {pdfBlobUrl && !pdfLoading && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={loadPdfPreview}
+                      className="self-end"
+                    >
+                      <RefreshCwIcon className="h-3.5 w-3.5" />
+                      Atualizar prévia
+                    </Button>
+                  )}
                 </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Esta é uma prévia aproximada do laudo. O PDF definitivo será gerado após o envio.
-                </p>
               </TabsContent>
             </Tabs>
           </>

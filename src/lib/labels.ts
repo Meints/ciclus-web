@@ -69,7 +69,7 @@ export const CONTRACT_STATUS_VARIANTS: Record<ContractStatus, BadgeVariant> = {
   ACTIVE: "success",
   ABOUT_TO_EXPIRE: "warning",
   EXPIRED: "destructive",
-  CANCELLED: "secondary",
+  CANCELLED: "destructive",
   PAUSED: "outline",
 };
 
@@ -77,7 +77,7 @@ export const SERVICE_STATUS_VARIANTS: Record<ServiceStatus, BadgeVariant> = {
   SCHEDULED: "default",
   IN_PROGRESS: "warning",
   COMPLETED: "success",
-  CANCELLED: "secondary",
+  CANCELLED: "destructive",
   CONFIRMED: "success",
   NOT_FOUND: "destructive",
   RESCHEDULED: "warning",

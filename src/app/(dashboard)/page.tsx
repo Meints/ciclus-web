@@ -6,6 +6,8 @@ import {
   AlertCircleIcon,
   ArrowRightIcon,
   CalendarIcon,
+  CheckCircle2Icon,
+  CircleIcon,
   DollarSignIcon,
   FileTextIcon,
   TrendingUpIcon,
@@ -106,7 +108,7 @@ export default function DashboardPage() {
         <div className="pointer-events-none absolute -bottom-10 -right-4 h-32 w-32 rounded-full bg-white/5" />
       </div>
 
-      {/* KPI strip */}
+      {/* KPI strip operacional */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <KpiCard
           label="Contratos ativos"
@@ -148,6 +150,41 @@ export default function DashboardPage() {
           loading={isSummaryLoading}
         />
       </div>
+
+      {/* KPI strip financeiro */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <KpiCard
+          label="Faturado no mês"
+          value={summary?.paidThisMonth != null ? formatCurrency(summary.paidThisMonth) : "—"}
+          subtitle="OS pagas este mês"
+          icon={DollarSignIcon}
+          variant="success"
+          loading={isSummaryLoading}
+        />
+        <KpiCard
+          label="A receber"
+          value={summary?.pendingPayment != null ? formatCurrency(summary.pendingPayment) : "—"}
+          subtitle="OS concluídas não pagas"
+          icon={TrendingUpIcon}
+          variant={summary?.pendingPayment ? "warning" : "default"}
+          loading={isSummaryLoading}
+          onClick={() => router.push("/servicos")}
+        />
+        <KpiCard
+          label="MRR"
+          value={summary?.monthlyRecurringRevenue != null ? formatCurrency(summary.monthlyRecurringRevenue) : "—"}
+          subtitle="Receita recorrente mensal"
+          icon={FileTextIcon}
+          variant="default"
+          loading={isSummaryLoading}
+          onClick={() => router.push("/contratos")}
+        />
+      </div>
+
+      {/* Onboarding — só aparece enquanto há etapas pendentes */}
+      {summary && !isSummaryLoading && (
+        <OnboardingChecklist summary={summary} />
+      )}
 
       {/* Calendar + right panel */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -264,6 +301,77 @@ export default function DashboardPage() {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function OnboardingChecklist({ summary }: { summary: import("@/types/dashboard").DashboardSummary }) {
+  const steps = [
+    {
+      label: "Cadastrar o primeiro cliente",
+      done: summary.activeCustomers > 0,
+      href: "/clientes",
+    },
+    {
+      label: "Criar o primeiro contrato",
+      done: summary.activeContracts > 0,
+      href: "/contratos",
+    },
+    {
+      label: "Agendar a primeira ordem de serviço",
+      done: summary.totalServices > 0,
+      href: "/servicos?quickCreate=true",
+    },
+  ];
+
+  const allDone = steps.every((s) => s.done);
+  if (allDone) return null;
+
+  const doneCount = steps.filter((s) => s.done).length;
+
+  return (
+    <div className="rounded-xl border border-brand-200 bg-brand-50/60 p-5 dark:border-brand-800 dark:bg-brand-950/30">
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-brand-800 dark:text-brand-200">Primeiros passos</h3>
+          <p className="mt-0.5 text-xs text-brand-600 dark:text-brand-400">
+            {doneCount} de {steps.length} etapas concluídas
+          </p>
+        </div>
+        <div className="flex h-9 w-9 items-center justify-center">
+          <svg viewBox="0 0 36 36" className="h-9 w-9 -rotate-90">
+            <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeWidth="3" className="text-brand-200 dark:text-brand-800" />
+            <circle
+              cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeWidth="3"
+              strokeDasharray={`${(doneCount / steps.length) * 88} 88`}
+              strokeLinecap="round"
+              className="text-brand-600 transition-all duration-500"
+            />
+          </svg>
+        </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        {steps.map((step) => (
+          <Link
+            key={step.label}
+            href={step.done ? "#" : step.href}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
+              step.done
+                ? "cursor-default text-muted-foreground"
+                : "cursor-pointer bg-white/70 font-medium text-brand-800 hover:bg-white dark:bg-brand-900/40 dark:text-brand-200 dark:hover:bg-brand-900/70",
+            )}
+          >
+            {step.done ? (
+              <CheckCircle2Icon className="h-4 w-4 shrink-0 text-success-500" />
+            ) : (
+              <CircleIcon className="h-4 w-4 shrink-0 text-brand-400" />
+            )}
+            <span className={step.done ? "line-through" : ""}>{step.label}</span>
+            {!step.done && <ArrowRightIcon className="ml-auto h-3.5 w-3.5 text-brand-400" />}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

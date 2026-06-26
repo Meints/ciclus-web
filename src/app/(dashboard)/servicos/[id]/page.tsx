@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useCallback } from "react";
 import Link from "next/link";
 import {
   CalendarIcon,
@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { PhotoLightbox } from "@/components/ui/photo-lightbox";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Tooltip } from "@/components/ui/tooltip";
 import { ServiceCompleteDialog } from "@/components/services/service-complete-dialog";
@@ -47,6 +48,8 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const closeLightbox = useCallback(() => setLightboxIndex(null), []);
 
   const user = useAuthStore((state) => state.user);
   const canCancel = hasRole(user?.role, ["OWNER", "ADMIN"]);
@@ -342,20 +345,18 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                   Fotos ({service.execution.photoUrls.length})
                 </p>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {service.execution.photoUrls.map((url) => (
-                    <a
+                  {service.execution.photoUrls.map((url, i) => (
+                    <button
                       key={url}
-                      href={url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block aspect-square overflow-hidden rounded-md border"
+                      onClick={() => setLightboxIndex(i)}
+                      className="block aspect-square overflow-hidden rounded-md border focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <img
                         src={url}
-                        alt="Foto da execução"
+                        alt={`Foto ${i + 1}`}
                         className="h-full w-full object-cover transition-transform hover:scale-105"
                       />
-                    </a>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -371,8 +372,8 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
             <CardTitle>Confirmação do cliente</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-1.5">
                 {service.confirmationStatus === "CONFIRMED" ? (
                   <StatusBadge
                     label={`Confirmado pelo cliente em ${
@@ -383,19 +384,20 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                 ) : (
                   <StatusBadge label="Aguardando confirmação do cliente" variant="warning" />
                 )}
+                {service.confirmedName && (
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">{service.confirmedName}</span>
+                    {service.confirmedDocument &&
+                      ` · ${service.confirmedDocumentType === "CNPJ" ? "CNPJ" : "CPF"} ${service.confirmedDocument}`}
+                  </p>
+                )}
               </div>
-              {service.confirmedName && (
-                <div className="text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">{service.confirmedName}</span>
-                  {service.confirmedDocument &&
-                    ` · ${service.confirmedDocumentType === "CNPJ" ? "CNPJ" : "CPF"} ${service.confirmedDocument}`}
-                </div>
-              )}
               {service.confirmationStatus !== "CONFIRMED" && (
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="w-full sm:w-auto"
                   onClick={() => resendConfirmation.mutate()}
                   disabled={resendConfirmation.isPending}
                 >
@@ -404,7 +406,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                   ) : (
                     <SendIcon />
                   )}
-                  Reenviar
+                  Reenviar link de confirmação
                 </Button>
               )}
             </div>
@@ -469,6 +471,16 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
           cancelService.mutate(undefined, { onSuccess: () => setIsCancelOpen(false) })
         }
       />
+
+      {lightboxIndex !== null && (
+        <PhotoLightbox
+          photos={service.execution?.photoUrls ?? []}
+          initialIndex={lightboxIndex}
+          currentIndex={lightboxIndex}
+          onIndexChange={setLightboxIndex}
+          onClose={closeLightbox}
+        />
+      )}
     </div>
   );
 }

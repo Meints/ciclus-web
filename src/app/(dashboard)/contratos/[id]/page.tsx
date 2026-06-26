@@ -2,7 +2,8 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import { AlertTriangleIcon, BanIcon, Loader2Icon, PauseCircleIcon, PencilIcon, XCircleIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { AlertTriangleIcon, BanIcon, ClipboardPlusIcon, Loader2Icon, PauseCircleIcon, PencilIcon, XCircleIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +19,9 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { ContractStatusBadge } from "@/components/contracts/contract-status-badge";
 import { ContractForm } from "@/components/contracts/contract-form";
 import { useCancelContract, useContract, useUpdateContract } from "@/hooks/use-contracts";
-import { useServices } from "@/hooks/use-services";
+import { useCreateService, useServices } from "@/hooks/use-services";
+import { ServiceForm } from "@/components/services/service-form";
+import type { ServiceFormValues } from "@/lib/validations/service";
 import {
   CONTRACT_FREQUENCY_LABELS,
   SERVICE_STATUS_LABELS,
@@ -33,12 +36,15 @@ function toDateInput(dateStr: string): string {
 
 export default function ContractDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isCreateOSOpen, setIsCreateOSOpen] = useState(false);
 
   const { data: contract, isLoading } = useContract(id);
   const cancelContract = useCancelContract(id);
   const updateContract = useUpdateContract(id);
+  const createService = useCreateService();
   const { data: services, isLoading: isServicesLoading } = useServices({
     contractId: id,
     page: 1,
@@ -50,6 +56,18 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
       <div className="flex h-64 items-center justify-center">
         <Loader2Icon className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
+    );
+  }
+
+  function handleCreateOS(values: ServiceFormValues) {
+    createService.mutate(
+      { ...values, employeeId: values.employeeId || undefined },
+      {
+        onSuccess: (service) => {
+          setIsCreateOSOpen(false);
+          router.push(`/servicos/${service.id}`);
+        },
+      },
     );
   }
 
@@ -69,8 +87,8 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const endDay = new Date(contract.endDate);
-  endDay.setHours(0, 0, 0, 0);
+  const [ey, em, ed] = contract.endDate.split("T")[0]!.split("-").map(Number) as [number, number, number];
+  const endDay = new Date(ey, em - 1, ed);
   const daysLeft = Math.ceil((endDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
   return (
@@ -80,6 +98,10 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
         actions={
           contract.status === "ACTIVE" || contract.status === "ABOUT_TO_EXPIRE" ? (
             <div className="flex gap-2">
+              <Button onClick={() => setIsCreateOSOpen(true)}>
+                <ClipboardPlusIcon />
+                Gerar OS
+              </Button>
               <Button variant="outline" onClick={() => setIsEditOpen(true)}>
                 <PencilIcon />
                 Editar
@@ -99,7 +121,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
           <div>
             <p className="font-semibold">Contrato próximo ao vencimento</p>
             <p className="text-xs mt-0.5">
-              {daysLeft <= 0
+              {daysLeft === 0
                 ? "Este contrato vence hoje. Renove para continuar gerando ordens de serviço."
                 : `Este contrato vence em ${daysLeft} dia${daysLeft !== 1 ? "s" : ""} (${formatDate(contract.endDate)}). Renove para continuar gerando ordens de serviço.`}
             </p>
@@ -223,6 +245,25 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={isCreateOSOpen} onOpenChange={setIsCreateOSOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nova ordem de serviço</DialogTitle>
+          </DialogHeader>
+          <ServiceForm
+            defaultValues={{
+              customerId: contract.customerId,
+              contractId: contract.id,
+              scheduledDate: contract.nextVisitDate
+                ? contract.nextVisitDate.split("T")[0]
+                : new Date().toISOString().slice(0, 10),
+            }}
+            onSubmit={handleCreateOS}
+            isSubmitting={createService.isPending}
+          />
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

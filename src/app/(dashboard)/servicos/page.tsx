@@ -57,7 +57,12 @@ export default function ServicesPage({
   const [status, setStatus] = useState<string>(ALL);
   const [employeeId, setEmployeeId] = useState<string>(ALL);
   const [searchInput, setSearchInput] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
+  const [dateStart, setDateStart] = useState(() =>
+    isTechnician ? "" : startOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().slice(0, 10)
+  );
+  const [dateEnd, setDateEnd] = useState(() =>
+    isTechnician ? "" : endOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().slice(0, 10)
+  );
   const [page, setPage] = useState(1);
   const [view, setView] = useState<string>(isTechnician ? "list" : "kanban");
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -73,15 +78,6 @@ export default function ServicesPage({
   const { data: employees } = useEmployees({ page: 1, pageSize: 100 });
   const technicians = employees?.data ?? [];
 
-  const dateStart =
-    view === "kanban" && !dateFilter
-      ? startOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().slice(0, 10)
-      : dateFilter || undefined;
-  const dateEnd =
-    view === "kanban" && !dateFilter
-      ? endOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().slice(0, 10)
-      : undefined;
-
   const { data, isLoading } = useServices({
     page,
     pageSize: view === "kanban" ? 100 : PAGE_SIZE,
@@ -91,8 +87,8 @@ export default function ServicesPage({
         ? undefined
         : employeeId
       : user?.id,
-    dateStart,
-    dateEnd,
+    dateStart: dateStart || undefined,
+    dateEnd: dateEnd || undefined,
   });
   const createService = useCreateService();
 
@@ -114,6 +110,18 @@ export default function ServicesPage({
     router.push(`/servicos/${service.id}`);
   }
 
+  function handleViewChange(newView: string) {
+    setView(newView);
+    setPage(1);
+    if (newView === "kanban") {
+      setDateStart(startOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().slice(0, 10));
+      setDateEnd(endOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().slice(0, 10));
+    } else {
+      setDateStart("");
+      setDateEnd("");
+    }
+  }
+
   function handleCreate(values: ServiceFormValues) {
     createService.mutate(
       {
@@ -129,7 +137,12 @@ export default function ServicesPage({
     );
   }
 
-  const hasActiveFilters = status !== ALL || employeeId !== ALL || dateFilter || !!searchInput;
+  const defaultWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().slice(0, 10);
+  const defaultWeekEnd = endOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().slice(0, 10);
+  const datesChangedFromDefault = view === "kanban"
+    ? dateStart !== defaultWeekStart || dateEnd !== defaultWeekEnd
+    : !!(dateStart || dateEnd);
+  const hasActiveFilters = status !== ALL || employeeId !== ALL || datesChangedFromDefault || !!searchInput;
 
   return (
     <div className="flex flex-col gap-6">
@@ -188,11 +201,22 @@ export default function ServicesPage({
           </Select>
         )}
 
-        <DatePicker
-          value={dateFilter}
-          onChange={(value) => { setDateFilter(value); setPage(1); }}
-          className="h-8 w-52 border-0 bg-muted/50 shadow-none"
-        />
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-muted-foreground">De</span>
+          <DatePicker
+            value={dateStart}
+            onChange={(value) => { setDateStart(value); setPage(1); }}
+            placeholder="Início"
+            className="h-8 w-36 border-0 bg-muted/50 shadow-none"
+          />
+          <span className="text-xs text-muted-foreground">até</span>
+          <DatePicker
+            value={dateEnd}
+            onChange={(value) => { setDateEnd(value); setPage(1); }}
+            placeholder="Fim"
+            className="h-8 w-36 border-0 bg-muted/50 shadow-none"
+          />
+        </div>
 
         <div className="relative flex items-center">
           <SearchIcon className="absolute left-2.5 h-3.5 w-3.5 text-muted-foreground" />
@@ -207,7 +231,19 @@ export default function ServicesPage({
         {hasActiveFilters && (
           <button
             type="button"
-            onClick={() => { setStatus(ALL); setEmployeeId(ALL); setDateFilter(""); setSearchInput(""); setPage(1); }}
+            onClick={() => {
+              setStatus(ALL);
+              setEmployeeId(ALL);
+              setSearchInput("");
+              setPage(1);
+              if (view === "kanban") {
+                setDateStart(defaultWeekStart);
+                setDateEnd(defaultWeekEnd);
+              } else {
+                setDateStart("");
+                setDateEnd("");
+              }
+            }}
             className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
           >
             Limpar
@@ -218,7 +254,7 @@ export default function ServicesPage({
           <div className="ml-auto flex items-center gap-1 rounded-md border border-border bg-muted/40 p-0.5">
             <button
               type="button"
-              onClick={() => setView("kanban")}
+              onClick={() => handleViewChange("kanban")}
               className={`flex cursor-pointer items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors ${
                 view === "kanban" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
               }`}
@@ -228,7 +264,7 @@ export default function ServicesPage({
             </button>
             <button
               type="button"
-              onClick={() => setView("list")}
+              onClick={() => handleViewChange("list")}
               className={`flex cursor-pointer items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors ${
                 view === "list" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
               }`}
