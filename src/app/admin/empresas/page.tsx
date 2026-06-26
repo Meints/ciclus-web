@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, SearchIcon } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CompanyFormDialog } from "@/components/admin/company-form";
 import { useAdminCompanies } from "@/hooks/use-admin";
 import { planBadgeVariant } from "@/lib/admin-plans";
 import { formatDate } from "@/lib/utils";
@@ -31,6 +32,7 @@ export default function AdminCompaniesPage() {
   const [search, setSearch] = useState("");
   const [plan, setPlan] = useState("ALL");
   const [page, setPage] = useState(1);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const { data, isLoading } = useAdminCompanies({
     search: search || undefined,
@@ -57,6 +59,12 @@ export default function AdminCompaniesPage() {
       <PageHeader
         title="Empresas"
         description="Todas as empresas cadastradas na plataforma."
+        actions={
+          <Button onClick={() => setCreateOpen(true)} size="sm" className="gap-1.5">
+            <PlusIcon className="h-4 w-4" />
+            Nova empresa
+          </Button>
+        }
       />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -125,6 +133,8 @@ export default function AdminCompaniesPage() {
           </Table>
         )}
       </div>
+
+      <CompanyFormDialog open={createOpen} onOpenChange={setCreateOpen} />
 
       {meta && meta.totalPages > 1 && (
         <div className="flex items-center justify-between">

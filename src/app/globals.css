@@ -472,6 +472,45 @@
   background-color: var(--fc-list-event-hover-bg-color);
 }
 
+/* List view — responsivo mobile */
+.ciclus-calendar .fc-list {
+  overflow-x: hidden;
+}
+
+.ciclus-calendar .fc-list-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.ciclus-calendar .fc-list-event-time {
+  width: 4rem;
+  white-space: nowrap;
+  padding-left: 0.75rem;
+  font-size: 0.75rem;
+}
+
+.ciclus-calendar .fc-list-event-dot {
+  width: 2rem;
+}
+
+.ciclus-calendar .fc-list-event-title {
+  overflow: hidden;
+  max-width: 0;
+  width: 100%;
+}
+
+.ciclus-calendar .fc-list-event-title a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.ciclus-calendar .fc-list-day th {
+  width: 100%;
+}
+
 .ciclus-calendar .fc-timegrid-slot-label {
   font-size: 0.75rem;
   color: var(--gray-500);

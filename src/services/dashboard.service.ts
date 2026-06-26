@@ -1,5 +1,6 @@
 import { api } from "@/lib/api";
 import type {
+  AuditLogPage,
   DashboardSummary,
   ExpiringContract,
   MonthlyRevenue,
@@ -37,7 +38,18 @@ export const dashboardService = {
   },
 
   async getRecentActivity(): Promise<RecentActivity[]> {
-    const { data } = await api.get<RecentActivity[]>("/dashboard/recent-activity");
+    const { data } = await api.get<{ data: RecentActivity[] }>("/dashboard/recent-activity", { params: { pageSize: 6 } });
+    return data.data;
+  },
+
+  async getAuditLog(
+    page: number,
+    pageSize: number,
+    filters?: { userId?: string; action?: string; entityType?: string; dateFrom?: string; dateTo?: string },
+  ): Promise<AuditLogPage> {
+    const { data } = await api.get<AuditLogPage>("/dashboard/recent-activity", {
+      params: { page, pageSize, ...filters },
+    });
     return data;
   },
 };

@@ -9,6 +9,7 @@ import { BottomNav } from "@/components/layout/bottom-nav";
 import { QuickActionBar } from "@/components/shared/quick-action-bar";
 import { ConnectivityIndicator } from "@/components/shared/connectivity-indicator";
 import { OnboardingWizard } from "@/components/shared/onboarding-wizard";
+import { ImpersonationBanner } from "@/components/admin/impersonation-banner";
 import { useRequireAuth } from "@/hooks/use-auth";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthorized } = useRequireAuth();
@@ -38,6 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Sidebar className="hidden md:flex" />
       <MobileNav />
       <div className="flex flex-1 flex-col overflow-hidden">
+        <ImpersonationBanner />
         <Header onQuickAction={() => setQuickActionOpen(true)} />
         <main className="flex-1 overflow-y-auto bg-background p-4 pb-20 sm:pb-6 sm:p-6">
           {children}

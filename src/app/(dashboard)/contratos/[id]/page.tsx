@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import { Loader2Icon, PencilIcon, XCircleIcon } from "lucide-react";
+import { AlertTriangleIcon, BanIcon, Loader2Icon, PauseCircleIcon, PencilIcon, XCircleIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -67,12 +67,18 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
     );
   }
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const endDay = new Date(contract.endDate);
+  endDay.setHours(0, 0, 0, 0);
+  const daysLeft = Math.ceil((endDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
         title={`Contrato · ${contract.customerName}`}
         actions={
-          contract.status === "ACTIVE" && (
+          contract.status === "ACTIVE" || contract.status === "ABOUT_TO_EXPIRE" ? (
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setIsEditOpen(true)}>
                 <PencilIcon />
@@ -83,9 +89,55 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
                 Cancelar contrato
               </Button>
             </div>
-          )
+          ) : null
         }
       />
+
+      {(contract.status === "ABOUT_TO_EXPIRE" || (contract.status === "ACTIVE" && daysLeft <= 30)) && (
+        <div className="flex items-start gap-3 rounded-lg border border-warning-400 bg-warning-50 px-4 py-3 text-sm text-warning-600">
+          <AlertTriangleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+          <div>
+            <p className="font-semibold">Contrato próximo ao vencimento</p>
+            <p className="text-xs mt-0.5">
+              {daysLeft <= 0
+                ? "Este contrato vence hoje. Renove para continuar gerando ordens de serviço."
+                : `Este contrato vence em ${daysLeft} dia${daysLeft !== 1 ? "s" : ""} (${formatDate(contract.endDate)}). Renove para continuar gerando ordens de serviço.`}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {(contract.status === "EXPIRED" || (contract.status === "ACTIVE" && daysLeft <= 0)) && (
+        <div className="flex items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          <BanIcon className="mt-0.5 h-4 w-4 shrink-0" />
+          <div>
+            <p className="font-semibold">Contrato vencido</p>
+            <p className="text-xs mt-0.5">
+              Este contrato venceu em {formatDate(contract.endDate)}. Nenhuma nova ordem de serviço será gerada.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {contract.status === "CANCELLED" && (
+        <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
+          <XCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+          <div>
+            <p className="font-semibold text-foreground">Contrato cancelado</p>
+            <p className="text-xs mt-0.5">Este contrato foi cancelado e não gera mais ordens de serviço.</p>
+          </div>
+        </div>
+      )}
+
+      {contract.status === "PAUSED" && (
+        <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
+          <PauseCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+          <div>
+            <p className="font-semibold text-foreground">Contrato pausado</p>
+            <p className="text-xs mt-0.5">A geração automática de ordens de serviço está suspensa.</p>
+          </div>
+        </div>
+      )}
 
       <Card>
         <CardHeader>
@@ -104,7 +156,7 @@ export default function ContractDetailPage({ params }: { params: Promise<{ id: s
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Status</p>
-            <ContractStatusBadge status={contract.status} />
+            <ContractStatusBadge contract={contract} />
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Início</p>

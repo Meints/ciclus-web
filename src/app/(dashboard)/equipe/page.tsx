@@ -2,7 +2,7 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlusIcon, UsersIcon } from "lucide-react";
+import { PlusIcon, SearchIcon, UsersIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmployeeTable } from "@/components/employees/employee-table";
 import { EmployeeForm } from "@/components/employees/employee-form";
@@ -33,6 +34,7 @@ export default function EmployeesPage({
   const params = use(searchParams);
   const handledQuickCreate = useRef(false);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -44,7 +46,7 @@ export default function EmployeesPage({
     }
   }, [params.quickCreate, router]);
 
-  const { data, isLoading } = useEmployees({ page, pageSize: PAGE_SIZE });
+  const { data, isLoading } = useEmployees({ page, pageSize: PAGE_SIZE, search: search || undefined });
   const createEmployee = useCreateEmployee();
   const updateEmployee = useUpdateEmployee(editingEmployee?.id ?? "");
   const toggleEmployee = useToggleEmployee();
@@ -80,6 +82,16 @@ export default function EmployeesPage({
           </Button>
         }
       />
+
+      <div className="relative max-w-sm">
+        <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Buscar colaborador..."
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className="pl-9"
+        />
+      </div>
 
       {/* Summary bar */}
       {data && (

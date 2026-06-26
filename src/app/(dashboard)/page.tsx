@@ -6,13 +6,9 @@ import {
   AlertCircleIcon,
   ArrowRightIcon,
   CalendarIcon,
-  CheckCircle2Icon,
-  ClipboardListIcon,
   DollarSignIcon,
   FileTextIcon,
-  PenLineIcon,
   TrendingUpIcon,
-  UserPlusIcon,
   UsersIcon,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +19,6 @@ import { ServiceCalendar } from "@/components/dashboard/service-calendar";
 import {
   useDashboardSummary,
   useExpiringContracts,
-  useRecentActivity,
   useTechnicianStatus,
   useUpcomingServices,
 } from "@/hooks/use-dashboard";
@@ -38,7 +33,7 @@ import {
   formatPercent,
   cn,
 } from "@/lib/utils";
-import type { ExpiringContract, RecentActivity, TechnicianStatus, UpcomingService } from "@/types/dashboard";
+import type { ExpiringContract, TechnicianStatus, UpcomingService } from "@/types/dashboard";
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -47,14 +42,6 @@ function getGreeting() {
   return "Boa noite";
 }
 
-function getActivityIcon(entityType: string, action: string) {
-  if (action?.toLowerCase().includes("sign") || action?.toLowerCase().includes("confirm")) return PenLineIcon;
-  if (entityType === "SERVICE" && action?.toLowerCase().includes("complet")) return CheckCircle2Icon;
-  if (entityType === "CONTRACT") return FileTextIcon;
-  if (entityType === "CUSTOMER") return UserPlusIcon;
-  if (entityType === "SERVICE") return ClipboardListIcon;
-  return CalendarIcon;
-}
 
 function formatRelativeTime(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -75,7 +62,7 @@ export default function DashboardPage() {
   const { data: upcomingServices, isLoading: isServicesLoading } = useUpcomingServices();
   const { data: expiringContracts, isLoading: isContractsLoading } = useExpiringContracts();
   const { data: technicians, isLoading: isTechLoading } = useTechnicianStatus();
-  const { data: recentActivity, isLoading: isActivityLoading } = useRecentActivity();
+
 
   const firstName = user?.name?.split(" ")[0] ?? "usuário";
 
@@ -233,81 +220,50 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Technicians + Activity */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle>Equipe</CardTitle>
-            <Link href="/equipe" className="flex items-center gap-1 text-xs text-brand-600 hover:underline">
-              Gerenciar <ArrowRightIcon className="h-3 w-3" />
-            </Link>
-          </CardHeader>
-          <CardContent className="p-0">
-            {isTechLoading ? (
-              <div className="flex flex-col divide-y">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="flex items-center gap-3 px-5 py-3">
-                    <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
-                    <div className="flex flex-col gap-1.5">
-                      <div className="h-3.5 w-24 animate-pulse rounded bg-muted" />
-                      <div className="h-3 w-16 animate-pulse rounded bg-muted" />
-                    </div>
+      {/* Technicians */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <CardTitle>Equipe</CardTitle>
+          <Link href="/equipe" className="flex items-center gap-1 text-xs text-brand-600 hover:underline">
+            Gerenciar <ArrowRightIcon className="h-3 w-3" />
+          </Link>
+        </CardHeader>
+        <CardContent className="p-0">
+          {isTechLoading ? (
+            <div className="flex flex-col divide-y">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3 px-5 py-3">
+                  <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+                  <div className="flex flex-col gap-1.5">
+                    <div className="h-3.5 w-24 animate-pulse rounded bg-muted" />
+                    <div className="h-3 w-16 animate-pulse rounded bg-muted" />
                   </div>
-                ))}
-              </div>
-            ) : !technicians || technicians.length === 0 ? (
-              <EmptyState title="Nenhum técnico" description="Cadastre técnicos na equipe." />
-            ) : (
-              <div className="flex flex-col divide-y">
-                {technicians.map((tech) => (
-                  <TechnicianRow key={tech.id} tech={tech} />
-                ))}
-                {summary && (
-                  <div className="flex items-center justify-between px-5 py-3">
-                    <span className="text-xs text-muted-foreground">
-                      {summary.techniciansBusyToday} ocupados · {summary.totalTechnicians} no total
-                    </span>
-                    <span className="text-xs font-semibold text-brand-600">
-                      {summary.totalTechnicians > 0
-                        ? Math.round((summary.techniciansBusyToday / summary.totalTechnicians) * 100)
-                        : 0}% ocupação
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>Atividade recente</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            {isActivityLoading ? (
-              <div className="flex flex-col divide-y">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="flex items-start gap-3 px-5 py-3">
-                    <div className="mt-0.5 h-7 w-7 animate-pulse rounded-full bg-muted" />
-                    <div className="flex flex-col gap-1.5">
-                      <div className="h-3.5 w-40 animate-pulse rounded bg-muted" />
-                      <div className="h-3 w-24 animate-pulse rounded bg-muted" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : !recentActivity || recentActivity.length === 0 ? (
-              <EmptyState title="Nenhuma atividade" description="As ações da equipe aparecerão aqui." />
-            ) : (
-              <div className="flex flex-col divide-y">
-                {recentActivity.slice(0, 6).map((activity) => (
-                  <ActivityRow key={activity.id} activity={activity} />
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                </div>
+              ))}
+            </div>
+          ) : !technicians || technicians.length === 0 ? (
+            <EmptyState title="Nenhum técnico" description="Cadastre técnicos na equipe." />
+          ) : (
+            <div className="flex flex-col divide-y">
+              {technicians.map((tech) => (
+                <TechnicianRow key={tech.id} tech={tech} />
+              ))}
+              {summary && (
+                <div className="flex items-center justify-between px-5 py-3">
+                  <span className="text-xs text-muted-foreground">
+                    {summary.techniciansBusyToday} ocupados · {summary.totalTechnicians} no total
+                  </span>
+                  <span className="text-xs font-semibold text-brand-600">
+                    {summary.totalTechnicians > 0
+                      ? Math.round((summary.techniciansBusyToday / summary.totalTechnicians) * 100)
+                      : 0}% ocupação
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -386,26 +342,3 @@ function ExpiringRow({ contract }: { contract: ExpiringContract }) {
   );
 }
 
-function ActivityRow({ activity }: { activity: RecentActivity }) {
-  const Icon = getActivityIcon(activity.entityType, activity.action);
-  const iconColor = activity.action?.toLowerCase().includes("sign") || activity.action?.toLowerCase().includes("confirm")
-    ? "bg-success-50 text-success-600"
-    : activity.entityType === "SERVICE"
-      ? "bg-brand-50 text-brand-600"
-      : "bg-gray-100 text-gray-600";
-
-  return (
-    <div className="flex items-start gap-3 px-5 py-3">
-      <div className={cn("mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full", iconColor)}>
-        <Icon className="h-3.5 w-3.5" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm leading-snug">{activity.description}</p>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {activity.userName && <span>{activity.userName} · </span>}
-          {formatRelativeTime(activity.createdAt)}
-        </p>
-      </div>
-    </div>
-  );
-}

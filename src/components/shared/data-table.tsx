@@ -35,6 +35,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   isLoading?: boolean;
   onRowClick?: (row: TData) => void;
+  getRowClassName?: (row: TData) => string | undefined;
   pagination?: DataTablePagination;
   emptyTitle?: string;
   emptyDescription?: string;
@@ -46,6 +47,7 @@ export function DataTable<TData, TValue>({
   data,
   isLoading,
   onRowClick,
+  getRowClassName,
   pagination,
   emptyTitle = "Nenhum registro encontrado",
   emptyDescription = "Ajuste os filtros ou cadastre um novo registro.",
@@ -112,7 +114,10 @@ export function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 onClick={() => onRowClick?.(row.original)}
-                className={onRowClick ? "cursor-pointer" : undefined}
+                className={[
+                  onRowClick ? "cursor-pointer" : undefined,
+                  getRowClassName?.(row.original),
+                ].filter(Boolean).join(" ") || undefined}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>

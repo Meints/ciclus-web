@@ -119,7 +119,7 @@ export function ServiceCalendar() {
           </div>
         )}
 
-        <div key={view} className="ciclus-calendar animate-in fade-in-0 duration-200">
+        <div key={view} className="ciclus-calendar animate-in fade-in-0 duration-200 overflow-x-hidden min-w-0">
           <FullCalendar
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}

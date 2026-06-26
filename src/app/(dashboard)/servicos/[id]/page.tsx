@@ -296,7 +296,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {["COMPLETED", "CONFIRMED"].includes(service.status) && (
-              <div className="flex items-center justify-between gap-4 rounded-md border border-border bg-muted/20 p-3">
+              <div className="flex flex-col gap-3 rounded-md border border-border bg-muted/20 p-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <p className="text-xs text-muted-foreground">Pagamento</p>
                   {service.isPaid ? (
@@ -310,6 +310,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                     type="button"
                     variant={service.isPaid ? "outline" : "default"}
                     size="sm"
+                    className="w-full sm:w-auto"
                     onClick={() => togglePaid.mutate()}
                     disabled={togglePaid.isPending}
                   >

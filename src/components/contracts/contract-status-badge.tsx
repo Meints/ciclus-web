@@ -1,9 +1,26 @@
 import { StatusBadge } from "@/components/shared/status-badge";
 import { CONTRACT_STATUS_LABELS, CONTRACT_STATUS_VARIANTS } from "@/lib/labels";
-import type { ContractStatus } from "@/types/contract";
+import type { Contract, ContractStatus } from "@/types/contract";
 
-export function ContractStatusBadge({ status }: { status: ContractStatus }) {
+export function computeContractStatus(contract: Pick<Contract, "status" | "endDate">): ContractStatus {
+  if (contract.status === "CANCELLED" || contract.status === "PAUSED") {
+    return contract.status;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(contract.endDate);
+  end.setHours(0, 0, 0, 0);
+  const days = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (days <= 0) return "EXPIRED";
+  if (days <= 30) return "ABOUT_TO_EXPIRE";
+  return contract.status === "EXPIRED" ? "EXPIRED" : "ACTIVE";
+}
+
+export function ContractStatusBadge({ contract }: { contract: Pick<Contract, "status" | "endDate"> }) {
+  const effectiveStatus = computeContractStatus(contract);
   return (
-    <StatusBadge label={CONTRACT_STATUS_LABELS[status]} variant={CONTRACT_STATUS_VARIANTS[status]} />
+    <StatusBadge label={CONTRACT_STATUS_LABELS[effectiveStatus]} variant={CONTRACT_STATUS_VARIANTS[effectiveStatus]} />
   );
 }

@@ -12,6 +12,8 @@ export interface AuthUser {
   niche: ServiceNiche | null;
   logoUrl?: string | null;
   avatarUrl?: string | null;
+  impersonating?: boolean;
+  originalUserId?: string | null;
 }
 
 export interface RegisterPayload {

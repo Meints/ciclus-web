@@ -1,5 +1,5 @@
 export type ContractFrequency = "MONTHLY" | "BIMONTHLY" | "QUARTERLY" | "SEMIANNUAL" | "YEARLY";
-export type ContractStatus = "ACTIVE" | "ABOUT_TO_EXPIRE" | "EXPIRED" | "CANCELLED";
+export type ContractStatus = "ACTIVE" | "ABOUT_TO_EXPIRE" | "EXPIRED" | "CANCELLED" | "PAUSED";
 export type ServiceType =
   | "AIR_CONDITIONING"
   | "PEST_CONTROL"

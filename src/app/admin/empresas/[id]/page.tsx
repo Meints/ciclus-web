@@ -1,7 +1,8 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   Bar,
   BarChart,
@@ -19,6 +20,10 @@ import {
   FileSignatureIcon,
   Loader2Icon,
   LogInIcon,
+  MoreHorizontalIcon,
+  PauseCircleIcon,
+  PlayCircleIcon,
+  Trash2Icon,
   UsersIcon,
   WrenchIcon,
 } from "lucide-react";
@@ -31,6 +36,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KpiCard } from "@/components/shared/kpi-card";
 import {
@@ -44,7 +66,11 @@ import {
 import {
   useAdminCompanyDetail,
   useImpersonate,
+  useListCompanyUsers,
+  useRemoveCompanyUser,
+  useToggleCompany,
   useUpdateCompanyPlan,
+  useUpdateCompanyUserRole,
 } from "@/hooks/use-admin";
 import { PLAN_OPTIONS, planBadgeVariant } from "@/lib/admin-plans";
 import { ROLE_LABELS } from "@/lib/auth";
@@ -58,9 +84,16 @@ export default function AdminCompanyDetailPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  const [toggleConfirmOpen, setToggleConfirmOpen] = useState(false);
+  const [removeUserId, setRemoveUserId] = useState<string | null>(null);
+
   const { data: company, isLoading } = useAdminCompanyDetail(id);
+  const { data: companyUsers } = useListCompanyUsers(id);
   const updatePlan = useUpdateCompanyPlan();
   const impersonate = useImpersonate();
+  const toggleCompany = useToggleCompany();
+  const removeUser = useRemoveCompanyUser(id);
+  const updateUserRole = useUpdateCompanyUserRole(id);
 
   if (isLoading) {
     return (
@@ -82,6 +115,7 @@ export default function AdminCompanyDetailPage({
   }
 
   const chartData = company.monthlyServices.map((m) => ({ month: m.month, OS: m.count }));
+  const isActive = (company as any).isActive !== false;
 
   function handlePlanChange(plan: string) {
     updatePlan.mutate({ id, plan });
@@ -89,6 +123,34 @@ export default function AdminCompanyDetailPage({
 
   function handleImpersonate() {
     impersonate.mutate(id);
+  }
+
+  function handleToggleCompany() {
+    toggleCompany.mutate(id, {
+      onSuccess: (data) => {
+        toast.success(data.isActive ? "Empresa ativada." : "Empresa suspensa.");
+        setToggleConfirmOpen(false);
+      },
+      onError: () => toast.error("Não foi possível alterar o status da empresa."),
+    });
+  }
+
+  function handleRemoveUser() {
+    if (!removeUserId) return;
+    removeUser.mutate(removeUserId, {
+      onSuccess: () => {
+        toast.success("Usuário removido.");
+        setRemoveUserId(null);
+      },
+      onError: (err: Error) => toast.error(err.message || "Não foi possível remover o usuário."),
+    });
+  }
+
+  function handleRoleChange(userId: string, role: string) {
+    updateUserRole.mutate({ userId, role }, {
+      onSuccess: () => toast.success("Role atualizado."),
+      onError: (err: Error) => toast.error(err.message || "Não foi possível alterar o role."),
+    });
   }
 
   return (
@@ -102,11 +164,14 @@ export default function AdminCompanyDetailPage({
       </button>
 
       <div className="flex flex-col gap-4 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold tracking-tight text-foreground">
             {company.name}
           </h1>
           <Badge variant={planBadgeVariant(company.plan)}>{company.plan}</Badge>
+          <Badge variant={isActive ? "default" : "destructive"}>
+            {isActive ? "Ativa" : "Suspensa"}
+          </Badge>
           {company.niche && (
             <span className="text-sm text-muted-foreground">{company.niche}</span>
           )}
@@ -128,7 +193,21 @@ export default function AdminCompanyDetailPage({
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={handleImpersonate} disabled={impersonate.isPending}>
+          <Button
+            variant="outline"
+            onClick={() => setToggleConfirmOpen(true)}
+            disabled={toggleCompany.isPending}
+          >
+            {toggleCompany.isPending ? (
+              <Loader2Icon className="h-4 w-4 animate-spin" />
+            ) : isActive ? (
+              <PauseCircleIcon className="h-4 w-4" />
+            ) : (
+              <PlayCircleIcon className="h-4 w-4" />
+            )}
+            {isActive ? "Suspender" : "Ativar"}
+          </Button>
+          <Button onClick={handleImpersonate} disabled={impersonate.isPending || !isActive}>
             {impersonate.isPending ? (
               <Loader2Icon className="h-4 w-4 animate-spin" />
             ) : (
@@ -138,6 +217,30 @@ export default function AdminCompanyDetailPage({
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={toggleConfirmOpen} onOpenChange={setToggleConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isActive ? "Suspender empresa?" : "Ativar empresa?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isActive
+                ? "Os usuários desta empresa não conseguirão mais acessar a plataforma."
+                : "Os usuários desta empresa voltarão a ter acesso à plataforma."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleToggleCompany}
+              className={isActive ? "bg-destructive hover:bg-destructive/90" : ""}
+            >
+              {isActive ? "Suspender" : "Ativar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <KpiCard label="Clientes" value={company.stats.customers} icon={UsersIcon} />
@@ -219,7 +322,7 @@ export default function AdminCompanyDetailPage({
           <CardTitle>Usuários</CardTitle>
         </CardHeader>
         <CardContent>
-          {company.users.length === 0 ? (
+          {(companyUsers ?? company.users).length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
               Nenhum usuário cadastrado.
             </p>
@@ -231,16 +334,55 @@ export default function AdminCompanyDetailPage({
                   <TableHead>E-mail</TableHead>
                   <TableHead>Papel</TableHead>
                   <TableHead>Desde</TableHead>
+                  <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {company.users.map((u) => (
+                {(companyUsers ?? company.users).map((u) => (
                   <TableRow key={u.id}>
                     <TableCell className="font-medium">{u.name}</TableCell>
                     <TableCell className="text-muted-foreground">{u.email}</TableCell>
-                    <TableCell>{ROLE_LABELS[u.role as UserRole] ?? u.role}</TableCell>
+                    <TableCell>
+                      {u.role === "OWNER" ? (
+                        <span className="text-sm">{ROLE_LABELS[u.role as UserRole] ?? u.role}</span>
+                      ) : (
+                        <Select
+                          value={u.role}
+                          onValueChange={(role) => handleRoleChange(u.id, role)}
+                        >
+                          <SelectTrigger className="h-7 w-36 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ADMIN">Administrador</SelectItem>
+                            <SelectItem value="TECHNICIAN">Técnico</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatDate(u.createdAt)}
+                    </TableCell>
+                    <TableCell>
+                      {u.role !== "OWNER" && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <MoreHorizontalIcon className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => setRemoveUserId(u.id)}
+                            >
+                              <Trash2Icon className="h-4 w-4" />
+                              Remover usuário
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -249,6 +391,26 @@ export default function AdminCompanyDetailPage({
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!removeUserId} onOpenChange={(o) => !o && setRemoveUserId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover usuário?</AlertDialogTitle>
+            <AlertDialogDescription>
+              O usuário perderá acesso à plataforma imediatamente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRemoveUser}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

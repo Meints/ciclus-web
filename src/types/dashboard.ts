@@ -64,6 +64,16 @@ export interface RecentActivity {
   description: string;
 }
 
+export interface AuditLogPage {
+  data: RecentActivity[];
+  meta: {
+    total: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+  };
+}
+
 export interface DashboardCalendarService {
   id: string;
   customerName: string;

@@ -14,10 +14,10 @@ export function CalendarEventContent({ service, variant }: CalendarEventContentP
 
   if (variant === "list") {
     return (
-      <span className="flex items-center gap-2 truncate text-sm">
+      <span className="flex min-w-0 items-center gap-2 text-sm">
         <span className={cn("h-2 w-2 shrink-0 rounded-full", style.dot)} />
         <span className="truncate font-medium">{service.customerName}</span>
-        <span className="truncate text-muted-foreground">
+        <span className="hidden shrink-0 text-muted-foreground sm:inline">
           · {getServiceTypeLabel(service.serviceType)}
         </span>
       </span>

@@ -40,6 +40,7 @@ export const CONTRACT_STATUS_LABELS: Record<ContractStatus, string> = {
   ABOUT_TO_EXPIRE: "Próximo ao vencimento",
   EXPIRED: "Vencido",
   CANCELLED: "Cancelado",
+  PAUSED: "Pausado",
 };
 
 export const SERVICE_STATUS_LABELS: Record<ServiceStatus, string> = {
@@ -69,6 +70,7 @@ export const CONTRACT_STATUS_VARIANTS: Record<ContractStatus, BadgeVariant> = {
   ABOUT_TO_EXPIRE: "warning",
   EXPIRED: "destructive",
   CANCELLED: "secondary",
+  PAUSED: "outline",
 };
 
 export const SERVICE_STATUS_VARIANTS: Record<ServiceStatus, BadgeVariant> = {

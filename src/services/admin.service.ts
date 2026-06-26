@@ -4,9 +4,12 @@ import type {
   AdminCompaniesResponse,
   AdminCompany,
   AdminCompanyDetail,
+  AdminCompanyUser,
   AdminMrrPoint,
   AdminOverview,
   AtRiskCompany,
+  CreateCompanyPayload,
+  CreateCompanyResult,
 } from "@/types/admin";
 
 export const adminService = {
@@ -49,6 +52,44 @@ export const adminService = {
 
   async impersonate(id: string): Promise<{ token: string }> {
     const { data } = await api.post<{ token: string }>(`/admin/companies/${id}/impersonate`);
+    return data;
+  },
+
+  async exitImpersonation(): Promise<{ token: string }> {
+    const { data } = await api.post<{ token: string }>("/admin/impersonate/exit");
+    return data;
+  },
+
+  async createCompany(payload: CreateCompanyPayload): Promise<CreateCompanyResult> {
+    const { data } = await api.post<CreateCompanyResult>("/admin/companies", payload);
+    return data;
+  },
+
+  async toggleCompany(id: string): Promise<{ id: string; name: string; isActive: boolean }> {
+    const { data } = await api.patch<{ id: string; name: string; isActive: boolean }>(
+      `/admin/companies/${id}/toggle`,
+    );
+    return data;
+  },
+
+  async listCompanyUsers(id: string): Promise<AdminCompanyUser[]> {
+    const { data } = await api.get<AdminCompanyUser[]>(`/admin/companies/${id}/users`);
+    return data;
+  },
+
+  async removeCompanyUser(companyId: string, userId: string): Promise<void> {
+    await api.delete(`/admin/companies/${companyId}/users/${userId}`);
+  },
+
+  async updateCompanyUserRole(
+    companyId: string,
+    userId: string,
+    role: string,
+  ): Promise<AdminCompanyUser> {
+    const { data } = await api.patch<AdminCompanyUser>(
+      `/admin/companies/${companyId}/users/${userId}/role`,
+      { role },
+    );
     return data;
   },
 };

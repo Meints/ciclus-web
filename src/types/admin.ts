@@ -64,3 +64,26 @@ export interface AdminCompaniesResponse {
   data: AdminCompany[];
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
+
+export interface CreateCompanyPayload {
+  companyName: string;
+  ownerName: string;
+  ownerEmail: string;
+  niche?: string;
+  plan?: string;
+}
+
+export interface CreateCompanyResult {
+  company: { id: string; name: string; niche: string | null; plan: string; createdAt: string };
+  owner: { id: string; name: string; email: string; role: string; createdAt: string };
+  tempPassword: string;
+}
+
+export interface AdminCompanyUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  createdAt: string;
+}
