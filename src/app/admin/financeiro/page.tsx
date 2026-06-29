@@ -15,8 +15,19 @@ import { KpiCard } from "@/components/shared/kpi-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAdminMRR, useAdminOverview } from "@/hooks/use-admin";
 import { formatCurrency } from "@/lib/utils";
+import { useIsDark } from "@/hooks/use-is-dark";
 
 export default function AdminFinancePage() {
+  const isDark = useIsDark();
+  const barColor = isDark ? "#5a9be0" : "#2671c4";
+  const tooltipStyle = {
+    borderRadius: 8,
+    border: "1px solid hsl(var(--border))",
+    backgroundColor: "hsl(var(--card))",
+    color: "hsl(var(--card-foreground))",
+    fontSize: 12,
+  };
+
   const { data: overview, isLoading: overviewLoading } = useAdminOverview();
   const { data: mrr, isLoading: mrrLoading } = useAdminMRR();
 
@@ -84,13 +95,9 @@ export default function AdminFinancePage() {
                   <RechartsTooltip
                     cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
                     formatter={(value) => [value as number, "Novas empresas"]}
-                    contentStyle={{
-                      borderRadius: 8,
-                      border: "1px solid hsl(var(--border))",
-                      fontSize: 12,
-                    }}
+                    contentStyle={tooltipStyle}
                   />
-                  <Bar dataKey="newCompanies" fill="#2671c4" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="newCompanies" fill={barColor} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -130,13 +137,9 @@ export default function AdminFinancePage() {
                   <RechartsTooltip
                     cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
                     formatter={(value) => [value as number, "Contratos ativos"]}
-                    contentStyle={{
-                      borderRadius: 8,
-                      border: "1px solid hsl(var(--border))",
-                      fontSize: 12,
-                    }}
+                    contentStyle={tooltipStyle}
                   />
-                  <Bar dataKey="activeContracts" fill="#2671c4" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="activeContracts" fill={barColor} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

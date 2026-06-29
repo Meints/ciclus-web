@@ -20,8 +20,19 @@ import { PageHeader } from "@/components/shared/page-header";
 import { KpiCard } from "@/components/shared/kpi-card";
 import { useDashboardSummary, useMonthlyRevenue } from "@/hooks/use-dashboard";
 import { formatCompactCurrency, formatCurrency } from "@/lib/utils";
+import { useIsDark } from "@/hooks/use-is-dark";
 
 export default function ReportsPage() {
+  const isDark = useIsDark();
+  const barColor = isDark ? "#5a9be0" : "#2671c4";
+  const tooltipStyle = {
+    borderRadius: 8,
+    border: "1px solid hsl(var(--border))",
+    backgroundColor: "hsl(var(--card))",
+    color: "hsl(var(--card-foreground))",
+    fontSize: 12,
+  };
+
   const { data: summary, isLoading: summaryLoading } = useDashboardSummary();
   const { data: monthly, isLoading: monthlyLoading } = useMonthlyRevenue();
 
@@ -108,13 +119,9 @@ export default function ReportsPage() {
                   <RechartsTooltip
                     cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
                     formatter={(value) => [formatCurrency(value as number), "Faturamento"]}
-                    contentStyle={{
-                      borderRadius: 8,
-                      border: "1px solid hsl(var(--border))",
-                      fontSize: 12,
-                    }}
+                    contentStyle={tooltipStyle}
                   />
-                  <Bar dataKey="Faturamento" fill="#2671c4" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Faturamento" fill={barColor} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -154,13 +161,9 @@ export default function ReportsPage() {
                   <RechartsTooltip
                     cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
                     formatter={(value) => [value as number, "Serviços"]}
-                    contentStyle={{
-                      borderRadius: 8,
-                      border: "1px solid hsl(var(--border))",
-                      fontSize: 12,
-                    }}
+                    contentStyle={tooltipStyle}
                   />
-                  <Bar dataKey="Serviços" fill="#2671c4" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Serviços" fill={barColor} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

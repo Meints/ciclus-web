@@ -75,6 +75,7 @@ import {
 import { PLAN_OPTIONS, planBadgeVariant } from "@/lib/admin-plans";
 import { ROLE_LABELS } from "@/lib/auth";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { useIsDark } from "@/hooks/use-is-dark";
 import type { UserRole } from "@/types/auth";
 
 export default function AdminCompanyDetailPage({
@@ -83,6 +84,16 @@ export default function AdminCompanyDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const isDark = useIsDark();
+  const barColor = isDark ? "#5a9be0" : "#2671c4";
+  const tooltipStyle = {
+    borderRadius: 8,
+    border: "1px solid hsl(var(--border))",
+    backgroundColor: "hsl(var(--card))",
+    color: "hsl(var(--card-foreground))",
+    fontSize: 12,
+  };
+
   const router = useRouter();
   const [toggleConfirmOpen, setToggleConfirmOpen] = useState(false);
   const [removeUserId, setRemoveUserId] = useState<string | null>(null);
@@ -303,13 +314,9 @@ export default function AdminCompanyDetailPage({
                   <RechartsTooltip
                     cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
                     formatter={(value) => [value as number, "OS"]}
-                    contentStyle={{
-                      borderRadius: 8,
-                      border: "1px solid hsl(var(--border))",
-                      fontSize: 12,
-                    }}
+                    contentStyle={tooltipStyle}
                   />
-                  <Bar dataKey="OS" fill="#2671c4" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="OS" fill={barColor} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
