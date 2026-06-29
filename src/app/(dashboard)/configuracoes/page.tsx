@@ -490,7 +490,7 @@ export default function SettingsPage() {
                   <div>
                     <p className="text-sm font-medium">Senha configurada</p>
                     <p className="text-xs text-muted-foreground">
-                      Clique em "Alterar senha" para redefinir suas credenciais de acesso.
+                      Clique em &quot;Alterar senha&quot; para redefinir suas credenciais de acesso.
                     </p>
                   </div>
                 </div>

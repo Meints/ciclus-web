@@ -115,7 +115,7 @@ export default function AdminCompanyDetailPage({
   }
 
   const chartData = company.monthlyServices.map((m) => ({ month: m.month, OS: m.count }));
-  const isActive = (company as any).isActive !== false;
+  const isActive = company.isActive !== false;
 
   function handlePlanChange(plan: string) {
     updatePlan.mutate({ id, plan });

@@ -24,6 +24,7 @@ export interface AdminCompanyDetail {
   name: string;
   niche: string | null;
   plan: string;
+  isActive: boolean;
   createdAt: string;
   users: Array<{ id: string; name: string; email: string; role: string; createdAt: string }>;
   stats: {
