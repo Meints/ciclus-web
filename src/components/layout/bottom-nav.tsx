@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ClipboardListIcon,
+  FileTextIcon,
   HomeIcon,
   PlusCircleIcon,
   UsersIcon,
@@ -25,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Início", href: "/", icon: HomeIcon, roles: ["OWNER", "ADMIN", "TECHNICIAN"] },
   { label: "Serviços", href: "/servicos", icon: ClipboardListIcon, roles: ["OWNER", "ADMIN", "TECHNICIAN"] },
   { label: "Criar", href: "/servicos?quickCreate=true", icon: PlusCircleIcon, roles: ["OWNER", "ADMIN"], primary: true },
+  { label: "Contratos", href: "/contratos", icon: FileTextIcon, roles: ["OWNER", "ADMIN"] },
   { label: "Clientes", href: "/clientes", icon: UsersIcon, roles: ["OWNER", "ADMIN"] },
 ];
 
