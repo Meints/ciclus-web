@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { employeeSchema, type EmployeeFormValues } from "@/lib/validations/employee";
+import { maskPhone, onlyDigits } from "@/lib/document";
 
 interface EmployeeFormProps {
   defaultValues?: Partial<EmployeeFormValues>;
@@ -82,7 +83,12 @@ export function EmployeeForm({
                 <FormItem>
                   <FormLabel>Telefone</FormLabel>
                   <FormControl>
-                    <Input placeholder="(00) 00000-0000" {...field} />
+                    <Input
+                      placeholder="(00) 00000-0000"
+                      value={maskPhone(field.value ?? "")}
+                      onChange={(event) => field.onChange(onlyDigits(event.target.value))}
+                      inputMode="numeric"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

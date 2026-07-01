@@ -18,6 +18,7 @@ import { useUpdateCompanyNiche } from "@/hooks/use-company";
 import { useCreateCustomer } from "@/hooks/use-customers";
 import { NICHE_LABELS, type ServiceNiche } from "@/lib/service-types";
 import type { CustomerDocumentType } from "@/types/customer";
+import { maskDocument, maskPhone, onlyDigits } from "@/lib/document";
 
 export function OnboardingWizard() {
   const user = useAuthStore((state) => state.user);
@@ -171,8 +172,9 @@ export function OnboardingWizard() {
                 <Input
                   id="onboarding-doc"
                   placeholder={documentType === "CNPJ" ? "00.000.000/0000-00" : "000.000.000-00"}
-                  value={document}
-                  onChange={(e) => setDocument(e.target.value)}
+                  value={maskDocument(document, documentType)}
+                  onChange={(e) => setDocument(onlyDigits(e.target.value))}
+                  inputMode="numeric"
                 />
               </div>
             </div>
@@ -182,8 +184,9 @@ export function OnboardingWizard() {
               <Input
                 id="onboarding-phone"
                 placeholder="(11) 99999-9999"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
+                value={maskPhone(customerPhone)}
+                onChange={(e) => setCustomerPhone(onlyDigits(e.target.value))}
+                inputMode="numeric"
               />
             </div>
 
